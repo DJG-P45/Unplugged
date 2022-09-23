@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.unplugged.R;
 import com.example.unplugged.ui.state.FoundArea;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FoundAreasRecyclerAdapter extends RecyclerView.Adapter <FoundAreasRecyclerAdapter.FoundAreaViewHolder> {
@@ -18,7 +19,7 @@ public class FoundAreasRecyclerAdapter extends RecyclerView.Adapter <FoundAreasR
     private List<FoundArea> foundAreas;
 
     public FoundAreasRecyclerAdapter() {
-        this.foundAreas = foundAreas;
+        this.foundAreas = new ArrayList<>();
     }
 
     @NonNull
@@ -33,7 +34,7 @@ public class FoundAreasRecyclerAdapter extends RecyclerView.Adapter <FoundAreasR
         FoundArea area = foundAreas.get(position);
         holder.title.setText(area.getTitle());
         holder.subtitle.setText(area.getSubtitle());
-        holder.card.setOnClickListener(area.getSelectAction());
+        holder.card.setOnClickListener(view -> area.observeArea());
     }
 
     @Override

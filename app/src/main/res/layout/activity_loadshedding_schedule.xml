@@ -38,16 +38,25 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/txtScheduleDowntime"
+            android:id="@+id/txtScheduleAreaName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Downtime"
-            android:textSize="20sp" />
+            android:text="@string/area_name"
+            android:textSize="20sp"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/txtScheduleTotalDowntime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/total_downtime"
+            android:textSize="20sp"
+            android:layout_marginTop="5dp"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="10dp">
 
             <ImageButton
                 android:id="@+id/btnSchedulePrevious"

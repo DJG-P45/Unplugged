@@ -1,20 +1,20 @@
 package com.example.unplugged.ui.state;
 
-import android.view.View;
+import java.util.Objects;
 
 public class FoundArea {
 
     private String title;
     private String subtitle;
-    private View.OnClickListener selectAction;
+    private Runnable observeArea;
 
     public FoundArea() {
     }
 
-    public FoundArea(String title, String subtitle, View.OnClickListener selectAction) {
+    public FoundArea(String title, String subtitle, Runnable observeArea) {
         this.title = title;
         this.subtitle = subtitle;
-        this.selectAction = selectAction;
+        this.observeArea = observeArea;
     }
 
     public String getTitle() {
@@ -33,11 +33,11 @@ public class FoundArea {
         this.subtitle = subtitle;
     }
 
-    public View.OnClickListener getSelectAction() {
-        return selectAction;
+    public void observeArea() {
+        Objects.requireNonNull(observeArea).run();
     }
 
-    public void setSelectAction(View.OnClickListener selectAction) {
-        this.selectAction = selectAction;
+    public void setObserveArea(Runnable observeArea) {
+        this.observeArea = observeArea;
     }
 }

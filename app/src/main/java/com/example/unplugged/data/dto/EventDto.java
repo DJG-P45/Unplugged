@@ -1,6 +1,7 @@
 package com.example.unplugged.data.dto;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class EventDto {
 
@@ -38,5 +39,12 @@ public class EventDto {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public long getDuration(ChronoUnit unit) {
+        if (start != null && end != null) {
+            return start.until(end, unit);
+        }
+        return 0;
     }
 }

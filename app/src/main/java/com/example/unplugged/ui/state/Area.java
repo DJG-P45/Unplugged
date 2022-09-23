@@ -1,13 +1,14 @@
 package com.example.unplugged.ui.state;
 
-import android.view.View;
+import java.util.Objects;
 
 public class Area {
 
     private String name;
     private String region;
     private String event;
-    private Runnable selectAction;
+    private Runnable selectArea;
+    private Runnable removeArea;
 
     public String getName() {
         return name;
@@ -33,11 +34,19 @@ public class Area {
         this.event = event;
     }
 
-    public Runnable getSelectAction() {
-        return selectAction;
+    public void selectArea() {
+        Objects.requireNonNull(selectArea).run();
     }
 
-    public void setSelectAction(Runnable selectAction) {
-        this.selectAction = selectAction;
+    public void setSelectArea(Runnable selectArea) {
+        this.selectArea = selectArea;
+    }
+
+    public void removeArea() {
+        Objects.requireNonNull(removeArea).run();
+    }
+
+    public void setRemoveArea(Runnable removeArea) {
+        this.removeArea = removeArea;
     }
 }

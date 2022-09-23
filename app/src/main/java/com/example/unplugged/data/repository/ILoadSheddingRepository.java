@@ -3,10 +3,11 @@ package com.example.unplugged.data.repository;
 import androidx.lifecycle.LiveData;
 
 import com.example.unplugged.data.dto.AreaDto;
-import com.example.unplugged.data.dto.AreaScheduleDto;
+import com.example.unplugged.data.dto.DayScheduleDto;
 import com.example.unplugged.data.dto.FoundAreaDto;
 import com.example.unplugged.data.dto.StatusDto;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public interface ILoadSheddingRepository {
@@ -17,8 +18,10 @@ public interface ILoadSheddingRepository {
 
     void observeArea(String id);
 
+    void removeObservedArea(String id);
+
     LiveData<List<AreaDto>> getObservedAreas();
 
-    LiveData<AreaScheduleDto> getObservedAreaSchedule(String id);
+    LiveData<DayScheduleDto> getDaySchedule(String id, ZonedDateTime date);
 
 }

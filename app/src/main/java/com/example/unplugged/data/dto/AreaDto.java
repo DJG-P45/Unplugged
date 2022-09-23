@@ -5,13 +5,13 @@ public class AreaDto {
     private String id;
     private String name;
     private String region;
-    private EventDto event;
+    private String event;
 
     public AreaDto() {
     }
 
 
-    public AreaDto(String id, String name, String region, EventDto event) {
+    public AreaDto(String id, String name, String region, String event) {
         this.id = id;
         this.name = name;
         this.region = region;
@@ -42,11 +42,11 @@ public class AreaDto {
         this.region = region;
     }
 
-    public EventDto getEvent() {
+    public String getEvent() {
         return event;
     }
 
-    public void setEvent(EventDto event) {
+    public void setEvent(String event) {
         this.event = event;
     }
 }

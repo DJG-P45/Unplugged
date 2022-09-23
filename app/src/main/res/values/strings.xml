@@ -8,4 +8,6 @@
     <string name="date">Date</string>
     <string name="schedule_previous">Previous</string>
     <string name="schedule_next">Next</string>
+    <string name="area_name">Area Name</string>
+    <string name="total_downtime">Total Downtime</string>
 </resources>

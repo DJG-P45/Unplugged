@@ -1,6 +1,7 @@
 package com.example.unplugged.data.dto;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class StatusDto {
 
@@ -29,5 +30,11 @@ public class StatusDto {
 
     public void setUpdated(ZonedDateTime updated) {
         this.updated = updated;
+    }
+
+    public String getElapsedTime() {
+        // TODO: Maybe there should be check to see if updated date is before current date?
+        long timeSince = updated.until(ZonedDateTime.now(), ChronoUnit.HOURS);
+        return  ("Since " + timeSince + " hours ago");
     }
 }
