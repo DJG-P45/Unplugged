@@ -8,17 +8,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.unplugged.R;
-import com.example.unplugged.ui.state.Event;
+import com.example.unplugged.data.dto.OutageDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoadSheddingEventAdapter implements EventAdapter <LoadSheddingEventAdapter.EventViewHolder> {
 
-    private List<Event> events;
+    private List<OutageDto> outages;
 
     public LoadSheddingEventAdapter() {
-        this.events = new ArrayList<>();
+        this.outages = new ArrayList<>();
     }
 
 
@@ -30,28 +30,28 @@ public class LoadSheddingEventAdapter implements EventAdapter <LoadSheddingEvent
         float dp = parent.getResources().getDisplayMetrics().density;
         float sp = parent.getResources().getDisplayMetrics().scaledDensity;
 
-        Event event = events.get(position);
+        OutageDto outage = outages.get(position);
 
-        int start = event.getStartTime().getHour() * 60;
-        start += event.getStartTime().getMinute();
+        int start = outage.getStart().getHour() * 60;
+        start += outage.getStart().getMinute();
 
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int)(200 * sp),(int)(event.getDurationInMinutes() * dp));
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int)(250 * sp),(int)(outage.getDurationInMinutes() * dp));
         params.topMargin = (int)(start * dp);
         params.leftMargin = (int)(60 * dp);
         viewHolder.layout.setLayoutParams(params);
 
-        viewHolder.label.setText(event.getNote());
+        viewHolder.label.setText(outage.getStart() + "-" + outage.getEnd());
 
         return viewHolder;
     }
 
     @Override
     public int getItemCount() {
-        return events.size();
+        return outages.size();
     }
 
-    public void setEvents(List<Event> events) {
-        this.events = events;
+    public void setOutages(List<OutageDto> outages) {
+        this.outages = outages;
     }
 
     protected class EventViewHolder extends DailyScheduleBuilder.ViewHolder {

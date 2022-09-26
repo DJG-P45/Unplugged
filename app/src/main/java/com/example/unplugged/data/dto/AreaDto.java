@@ -1,21 +1,23 @@
 package com.example.unplugged.data.dto;
 
+import java.util.List;
+
 public class AreaDto {
 
     private String id;
-    private String name;
-    private String region;
-    private String event;
+    private InfoDto info;
+    private List<EventDto> events;
+    private ScheduleDto schedule;
+
 
     public AreaDto() {
     }
 
-
-    public AreaDto(String id, String name, String region, String event) {
+    public AreaDto(String id, InfoDto info, List<EventDto> events, ScheduleDto schedule) {
         this.id = id;
-        this.name = name;
-        this.region = region;
-        this.event = event;
+        this.info = info;
+        this.events = events;
+        this.schedule = schedule;
     }
 
     public String getId() {
@@ -26,27 +28,27 @@ public class AreaDto {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public InfoDto getInfo() {
+        return info;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setInfo(InfoDto info) {
+        this.info = info;
     }
 
-    public String getRegion() {
-        return region;
+    public List<EventDto> getEvents() {
+        return events;
     }
 
-    public void setRegion(String region) {
-        this.region = region;
+    public void setEvents(List<EventDto> events) {
+        this.events = events;
     }
 
-    public String getEvent() {
-        return event;
+    public ScheduleDto getSchedule() {
+        return schedule;
     }
 
-    public void setEvent(String event) {
-        this.event = event;
+    public void setSchedule(ScheduleDto schedule) {
+        this.schedule = schedule;
     }
 }

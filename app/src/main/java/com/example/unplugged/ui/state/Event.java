@@ -1,27 +1,27 @@
 package com.example.unplugged.ui.state;
 
-import java.time.ZonedDateTime;
+import java.time.LocalTime;
 
 public class Event {
 
-    private ZonedDateTime startTime;
+    private LocalTime startTime;
     private int durationInMinutes;
     private String note;
 
     public Event() {
     }
 
-    public Event(ZonedDateTime startTime, int durationInMinutes, String note) {
+    public Event(LocalTime startTime, int durationInMinutes, String note) {
         this.startTime = startTime;
         this.durationInMinutes = durationInMinutes;
         this.note = note;
     }
 
-    public ZonedDateTime getStartTime() {
+    public LocalTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(ZonedDateTime startTime) {
+    public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
     }
 

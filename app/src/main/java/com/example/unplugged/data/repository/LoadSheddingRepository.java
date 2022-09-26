@@ -1,20 +1,30 @@
 package com.example.unplugged.data.repository;
 
+import android.app.Application;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
+import com.example.unplugged.data.datasource.ObservedAreaDao;
 import com.example.unplugged.data.datasource.UnpluggedDatabase;
 import com.example.unplugged.data.dto.AreaDto;
+import com.example.unplugged.data.dto.DayDto;
 import com.example.unplugged.data.dto.DayScheduleDto;
-import com.example.unplugged.data.dto.EventDto;
 import com.example.unplugged.data.dto.FoundAreaDto;
+import com.example.unplugged.data.dto.StageDto;
 import com.example.unplugged.data.dto.StatusDto;
+import com.example.unplugged.data.entity.ObservedAreaEntity;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +33,17 @@ import java.util.concurrent.Executors;
 
 public class LoadSheddingRepository implements ILoadSheddingRepository {
 
-    private UnpluggedDatabase unpluggedDatabase;
+    private ObservedAreaDao observedAreaDao;
     private EskomSePushNetworkApi eskomSePushNetworkApi;
+    private ObjectMapper mapper;
 
-    public LoadSheddingRepository() {
+    public LoadSheddingRepository(Application application) {
         this.eskomSePushNetworkApi = new EskomSePushNetworkApi();
+        UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
+        observedAreaDao = db.observedAreaDao();
+        mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
@@ -40,7 +56,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
             try {
                 JSONObject status = jsonObject.getJSONObject("status");
                 JSONObject eskom = status.getJSONObject("eskom");
-                statusDto.setStage("Stage " + eskom.getString("stage"));
+                statusDto.setStage(eskom.getInt("stage"));
                 statusDto.setUpdated(ZonedDateTime.parse(eskom.getString("stage_updated")));
                 mutableLiveData.postValue(statusDto);
             } catch (JSONException e) {
@@ -81,37 +97,44 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
 
     @Override
     public void observeArea(String id) {
-
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> observedAreaDao.insert(new ObservedAreaEntity(id)));
     }
 
     @Override
     public void removeObservedArea(String id) {
-
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> observedAreaDao.delete(id));
     }
-
-    // TODO: Have one endpoint for getting areas. Restructure DTOs to match JSON response structure.
-    // Allows me to avoid implementing caching and making two separate api calls
 
     @Override
     public LiveData<List<AreaDto>> getObservedAreas() {
-        Executor executor = Executors.newSingleThreadExecutor();
         List<AreaDto> areas = new ArrayList<>();
         MutableLiveData<List<AreaDto>> mutableLiveData = new MutableLiveData<>();
 
-        executor.execute(() -> eskomSePushNetworkApi.getAreaInfo("id-here", jsonObject -> {
+        observedAreaDao.getAllObservedAreas().observeForever(observedAreas -> {
+            for (ObservedAreaEntity entity : observedAreas) {
+                getArea(entity.getId()).observeForever(areaDto -> {
+                    areas.add(areaDto);
+                    mutableLiveData.postValue(areas);
+                });
+            }
+        });
+
+        return mutableLiveData;
+    }
+
+
+    @Override
+    public LiveData<AreaDto> getArea(String areaId) {
+        Executor executor = Executors.newSingleThreadExecutor();
+        MutableLiveData<AreaDto> mutableLiveData = new MutableLiveData<>();
+
+        executor.execute(() -> eskomSePushNetworkApi.getAreaInfo(areaId, jsonObject -> {
             try {
-                JSONObject info = jsonObject.getJSONObject("info");
-                AreaDto areaDto = new AreaDto();
-                areaDto.setName(info.getString("name"));
-                areaDto.setRegion(info.getString("region"));
-
-                JSONArray events = jsonObject.getJSONArray("events");
-                JSONObject firstEvent = (JSONObject) events.get(0);
-                areaDto.setEvent(firstEvent.getString("note"));
-
-                areas.add(areaDto);
-                mutableLiveData.postValue(areas);
-            } catch (JSONException e) {
+                AreaDto areaDto = mapper.readValue(jsonObject.toString(), AreaDto.class);
+                mutableLiveData.postValue(areaDto);
+            } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }));
@@ -119,17 +142,26 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         return mutableLiveData;
     }
 
-    @Override // TODO: Remove
-    public LiveData<DayScheduleDto> getDaySchedule(String id, ZonedDateTime date) {
+    @Override
+    public LiveData<DayScheduleDto> getDaySchedule(AreaDto areaDto, LocalDate date) {
+        MutableLiveData<DayScheduleDto> mutableLiveData = new MutableLiveData<>();
 
-        DayScheduleDto dayScheduleDto = new DayScheduleDto();
-        dayScheduleDto.setAreaName("Unknown");
-        dayScheduleDto.setDate(date.getDayOfMonth() + " " + date.getMonth().name());
-        dayScheduleDto.setDowntime("");
-        dayScheduleDto.setEvents(new ArrayList<>());
+        getStatus().observeForever(statusDto -> {
+            DayScheduleDto schedule = new DayScheduleDto();
+            schedule.setAreaName(areaDto.getInfo().getName());
+            schedule.setDate(date.getDayOfMonth() + " " + date.getMonth().name());
+            schedule.setDowntime("");
+            schedule.setOutages(new ArrayList<>());
 
-        return new MutableLiveData<>(dayScheduleDto);
+            for (DayDto dayDto : areaDto.getSchedule().getDays()) {
+                if (dayDto.getDate().isEqual(date)) {
+                    StageDto stageDto = dayDto.getStages().get(statusDto.getStage());
+                    schedule.setOutages(stageDto.getOutages());
+                }
+            }
+            mutableLiveData.postValue(schedule);
+        });
+
+        return  mutableLiveData;
     }
-
-
 }

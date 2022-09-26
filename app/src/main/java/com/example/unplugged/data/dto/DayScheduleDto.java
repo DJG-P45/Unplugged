@@ -7,7 +7,17 @@ public class DayScheduleDto {
     private String areaName;
     private String date;
     private String downtime;
-    private List<EventDto> events;
+    private List<OutageDto> outages;
+
+    public DayScheduleDto() {
+    }
+
+    public DayScheduleDto(String areaName, String date, String downtime, List<OutageDto> outages) {
+        this.areaName = areaName;
+        this.date = date;
+        this.downtime = downtime;
+        this.outages = outages;
+    }
 
     public String getAreaName() {
         return areaName;
@@ -33,11 +43,11 @@ public class DayScheduleDto {
         this.downtime = downtime;
     }
 
-    public List<EventDto> getEvents() {
-        return events;
+    public List<OutageDto> getOutages() {
+        return outages;
     }
 
-    public void setEvents(List<EventDto> events) {
-        this.events = events;
+    public void setOutages(List<OutageDto> outages) {
+        this.outages = outages;
     }
 }

@@ -14,7 +14,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.example.unplugged.ui.AreaRecyclerAdapter;
-import com.example.unplugged.ui.viewmodel.LoadSheddingViewModel;
+import com.example.unplugged.ui.viewmodel.AreasViewModel;
 
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LoadSheddingViewModel viewModel = new ViewModelProvider(this).get(LoadSheddingViewModel.class);
+        AreasViewModel viewModel = new ViewModelProvider(this).get(AreasViewModel.class);
 
         // Enable custom toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbarDashboard);

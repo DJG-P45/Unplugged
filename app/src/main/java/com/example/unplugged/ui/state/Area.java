@@ -4,10 +4,10 @@ import java.util.Objects;
 
 public class Area {
 
+    private String id;
     private String name;
     private String region;
     private String event;
-    private Runnable selectArea;
     private Runnable removeArea;
 
     public String getName() {
@@ -34,19 +34,19 @@ public class Area {
         this.event = event;
     }
 
-    public void selectArea() {
-        Objects.requireNonNull(selectArea).run();
-    }
-
-    public void setSelectArea(Runnable selectArea) {
-        this.selectArea = selectArea;
-    }
-
     public void removeArea() {
         Objects.requireNonNull(removeArea).run();
     }
 
     public void setRemoveArea(Runnable removeArea) {
         this.removeArea = removeArea;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

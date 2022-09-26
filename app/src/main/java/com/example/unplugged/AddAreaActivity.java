@@ -14,8 +14,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 import com.example.unplugged.ui.FoundAreasRecyclerAdapter;
-import com.example.unplugged.ui.viewmodel.LoadSheddingViewModel;
-import com.google.android.material.internal.TextWatcherAdapter;
+import com.example.unplugged.ui.viewmodel.AddAreaViewModel;
 
 import java.util.Objects;
 
@@ -37,7 +36,7 @@ public class AddAreaActivity extends AppCompatActivity {
         recyclerFoundAreas.setAdapter(adapter);
         recyclerFoundAreas.setLayoutManager(new LinearLayoutManager(this));
 
-        LoadSheddingViewModel loadSheddingVM = new ViewModelProvider(this).get(LoadSheddingViewModel.class);
+        AddAreaViewModel addAreaViewModel = new ViewModelProvider(this).get(AddAreaViewModel.class);
 
         edtTxtAreaSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -52,7 +51,7 @@ public class AddAreaActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                loadSheddingVM.findAreas(edtTxtAreaSearch.getText().toString()).observe(AddAreaActivity.this, adapter::setFoundAreas);
+                addAreaViewModel.findAreas(edtTxtAreaSearch.getText().toString()).observe(AddAreaActivity.this, adapter::setFoundAreas);
             }
         });
     }

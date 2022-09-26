@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linearLayoutEvent"
-    android:layout_width="200sp"
+    android:layout_width="250sp"
     android:layout_height="wrap_content"
     android:background="@color/light_orange"
     android:elevation="3dp"

@@ -42,8 +42,8 @@ public class AreaRecyclerAdapter extends RecyclerView.Adapter <AreaRecyclerAdapt
         holder.region.setText(area.getRegion());
         holder.event.setText(area.getEvent());
         holder.card.setOnClickListener(view -> {
-            area.selectArea();
             Intent intent = new Intent(context, LoadSheddingScheduleActivity.class);
+            intent.putExtra("AREA_ID", area.getId());
             context.startActivity(intent);
         });
     }

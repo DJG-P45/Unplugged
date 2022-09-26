@@ -7,7 +7,7 @@ import com.example.unplugged.data.dto.DayScheduleDto;
 import com.example.unplugged.data.dto.FoundAreaDto;
 import com.example.unplugged.data.dto.StatusDto;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ILoadSheddingRepository {
@@ -22,6 +22,8 @@ public interface ILoadSheddingRepository {
 
     LiveData<List<AreaDto>> getObservedAreas();
 
-    LiveData<DayScheduleDto> getDaySchedule(String id, ZonedDateTime date);
+    LiveData<AreaDto> getArea(String areaId);
+
+    LiveData<DayScheduleDto> getDaySchedule(AreaDto areaDto, LocalDate date);
 
 }

@@ -1,11 +1,15 @@
 package com.example.unplugged.data.dto;
 
+import androidx.annotation.NonNull;
+
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 public class EventDto {
 
-    private ZonedDateTime start, end;
+    private ZonedDateTime start;
+    private ZonedDateTime end;
     private String note;
 
     public EventDto() {
@@ -41,10 +45,9 @@ public class EventDto {
         this.note = note;
     }
 
-    public long getDuration(ChronoUnit unit) {
-        if (start != null && end != null) {
-            return start.until(end, unit);
-        }
-        return 0;
+    @NonNull
+    @Override
+    public String toString() {
+        return note + ": " + start.toLocalTime() + " - " + end.toLocalTime();
     }
 }

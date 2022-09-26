@@ -38,7 +38,7 @@ public class EskomSePushNetworkApi {
                     "                    \"stage_start_timestamp\": \"2022-08-09T00:00:00+02:00\"\n" +
                     "                }\n" +
                     "            ],\n" +
-                    "            \"stage\": \"0\",\n" +
+                    "            \"stage\": \"1\",\n" +
                     "            \"stage_updated\": \"2022-08-08T16:12:53.725852+02:00\"\n" +
                     "        }\n" +
                     "    }\n" +
@@ -67,7 +67,7 @@ public class EskomSePushNetworkApi {
                     "    \"schedule\": {\n" +
                     "        \"days\": [\n" +
                     "            {\n" +
-                    "                \"date\": \"2022-08-08\",\n" +
+                    "                \"date\": \"2022-09-22\",\n" +
                     "                \"name\": \"Monday\",\n" +
                     "                \"stages\": [\n" +
                     "                    [],\n" +
@@ -106,7 +106,7 @@ public class EskomSePushNetworkApi {
                     "                ]\n" +
                     "            },\n" +
                     "            {\n" +
-                    "                \"date\": \"2022-08-09\",\n" +
+                    "                \"date\": \"2022-09-23\",\n" +
                     "                \"name\": \"Tuesday\",\n" +
                     "                \"stages\": [\n" +
                     "                    [\n" +
@@ -147,7 +147,7 @@ public class EskomSePushNetworkApi {
                     "                ]\n" +
                     "            },\n" +
                     "            {\n" +
-                    "                \"date\": \"2022-08-10\",\n" +
+                    "                \"date\": \"2022-09-24\",\n" +
                     "                \"name\": \"Wednesday\",\n" +
                     "                \"stages\": [\n" +
                     "                    [\n" +
@@ -189,7 +189,7 @@ public class EskomSePushNetworkApi {
                     "                ]\n" +
                     "            },\n" +
                     "            {\n" +
-                    "                \"date\": \"2022-08-11\",\n" +
+                    "                \"date\": \"2022-09-25\",\n" +
                     "                \"name\": \"Thursday\",\n" +
                     "                \"stages\": [\n" +
                     "                    [\n" +
@@ -232,7 +232,7 @@ public class EskomSePushNetworkApi {
                     "                ]\n" +
                     "            },\n" +
                     "            {\n" +
-                    "                \"date\": \"2022-08-12\",\n" +
+                    "                \"date\": \"2022-09-26\",\n" +
                     "                \"name\": \"Friday\",\n" +
                     "                \"stages\": [\n" +
                     "                    [],\n" +

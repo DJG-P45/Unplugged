@@ -5,22 +5,22 @@ import java.time.temporal.ChronoUnit;
 
 public class StatusDto {
 
-    private String stage;
+    private int stage;
     private ZonedDateTime updated;
 
     public StatusDto() {
     }
 
-    public StatusDto(String stage, ZonedDateTime updated) {
+    public StatusDto(int stage, ZonedDateTime updated) {
         this.stage = stage;
         this.updated = updated;
     }
 
-    public String getStage() {
+    public int getStage() {
         return stage;
     }
 
-    public void setStage(String stage) {
+    public void setStage(int stage) {
         this.stage = stage;
     }
 

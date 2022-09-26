@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.example.unplugged.ui.DailyScheduleBuilder;
 import com.example.unplugged.ui.HourTimeSlotAdapter;
 import com.example.unplugged.ui.LoadSheddingEventAdapter;
-import com.example.unplugged.ui.viewmodel.LoadSheddingViewModel;
+import com.example.unplugged.ui.viewmodel.DayScheduleViewModel;
 
 import java.util.Objects;
 
@@ -24,7 +24,7 @@ public class LoadSheddingScheduleActivity extends AppCompatActivity {
     private ImageButton btnNextDay, btnPreviousDay;
     private Toolbar toolbar;
     private ScrollView scrollViewSchedule;
-    private LoadSheddingViewModel loadSheddingVM;
+    private DayScheduleViewModel dayScheduleViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,26 +44,23 @@ public class LoadSheddingScheduleActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
-        loadSheddingVM = new ViewModelProvider(this).get(LoadSheddingViewModel.class);
+        dayScheduleViewModel = new ViewModelProvider(this).get(DayScheduleViewModel.class);
 
         HourTimeSlotAdapter timeSlotAdapter = new HourTimeSlotAdapter();
         LoadSheddingEventAdapter eventAdapter = new LoadSheddingEventAdapter();
         DailyScheduleBuilder scheduleBuilder = new DailyScheduleBuilder(this, scrollViewSchedule, eventAdapter, timeSlotAdapter);
         scheduleBuilder.build();
 
-        loadSheddingVM.getDaySchedule().observe(this, daySchedule -> {
-            eventAdapter.setEvents(daySchedule.getEvents());
+        dayScheduleViewModel.getDaySchedule("").observe(this, daySchedule -> {
+            eventAdapter.setOutages(daySchedule.getSchedule().getOutages());
             scheduleBuilder.build();
 
-            txtDate.setText(daySchedule.getCurrentDate());
-            txtAreaName.setText(daySchedule.getAreaName());
-            txtDownTime.setText(daySchedule.getDowntime());
-            txtNextDay.setText(daySchedule.getNextDate());
-            txtPeviousDay.setText(daySchedule.getPreviousDate());
+            txtDate.setText(daySchedule.getSchedule().getDate());
+            txtAreaName.setText(daySchedule.getSchedule().getAreaName());
+            txtDownTime.setText(daySchedule.getSchedule().getDowntime());
 
             btnNextDay.setOnClickListener(view -> daySchedule.loadNextDaySchedule());
             btnPreviousDay.setOnClickListener(view -> daySchedule.loadPreviousDaySchedule());
-            //TODO: Area details should also be displayed
         });
 
     }
