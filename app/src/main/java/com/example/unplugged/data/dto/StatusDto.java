@@ -1,5 +1,8 @@
 package com.example.unplugged.data.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -28,6 +31,7 @@ public class StatusDto {
         return updated;
     }
 
+    @JsonSetter("stage_updated")
     public void setUpdated(ZonedDateTime updated) {
         this.updated = updated;
     }

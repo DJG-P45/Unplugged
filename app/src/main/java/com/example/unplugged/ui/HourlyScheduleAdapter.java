@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.example.unplugged.R;
 
-public class HourTimeSlotAdapter implements TimeSlotAdapter <HourTimeSlotAdapter.TimeSlotViewHolder> {
+public class HourlyScheduleAdapter extends DailyScheduleAdapter {
 
     @Override
     public TimeSlotViewHolder createView(ViewGroup parent, int position) {
@@ -21,7 +21,7 @@ public class HourTimeSlotAdapter implements TimeSlotAdapter <HourTimeSlotAdapter
         return 25;
     }
 
-    protected class TimeSlotViewHolder extends DailyScheduleBuilder.ViewHolder {
+    protected static class TimeSlotViewHolder extends DailyScheduleBuilder.ViewHolder {
 
         public TextView timeLabel;
 

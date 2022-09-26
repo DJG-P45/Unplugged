@@ -12,15 +12,16 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.unplugged.ui.DailyScheduleBuilder;
-import com.example.unplugged.ui.HourTimeSlotAdapter;
-import com.example.unplugged.ui.LoadSheddingEventAdapter;
+import com.example.unplugged.ui.HourlyScheduleAdapter;
+import com.example.unplugged.ui.OutageAdapter;
 import com.example.unplugged.ui.viewmodel.DayScheduleViewModel;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
-public class LoadSheddingScheduleActivity extends AppCompatActivity {
+public class DailyScheduleActivity extends AppCompatActivity {
 
-    private TextView txtDate, txtAreaName, txtDownTime, txtNextDay, txtPeviousDay;
+    private TextView txtDate, txtAreaName, txtDownTime;
     private ImageButton btnNextDay, btnPreviousDay;
     private Toolbar toolbar;
     private ScrollView scrollViewSchedule;
@@ -29,16 +30,14 @@ public class LoadSheddingScheduleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_loadshedding_schedule);
+        setContentView(R.layout.activity_daily_schedule);
 
         toolbar = (Toolbar) findViewById(R.id.toolbarSchedule);
         txtDate = findViewById(R.id.txtScheduleDate);
         txtAreaName = findViewById(R.id.txtScheduleAreaName);
         txtDownTime = findViewById(R.id.txtScheduleTotalDowntime);
         btnNextDay = findViewById(R.id.btnScheduleNext);
-        txtNextDay = findViewById(R.id.txtScheduleNext);
         btnPreviousDay = findViewById(R.id.btnSchedulePrevious);
-        txtPeviousDay = findViewById(R.id.txtSchedulePrevious);
         scrollViewSchedule = findViewById(R.id.scrollViewDailySchedule);
 
         setSupportActionBar(toolbar);
@@ -46,14 +45,13 @@ public class LoadSheddingScheduleActivity extends AppCompatActivity {
 
         dayScheduleViewModel = new ViewModelProvider(this).get(DayScheduleViewModel.class);
 
-        HourTimeSlotAdapter timeSlotAdapter = new HourTimeSlotAdapter();
-        LoadSheddingEventAdapter eventAdapter = new LoadSheddingEventAdapter();
-        DailyScheduleBuilder scheduleBuilder = new DailyScheduleBuilder(this, scrollViewSchedule, eventAdapter, timeSlotAdapter);
+        HourlyScheduleAdapter timeSlotAdapter = new HourlyScheduleAdapter();
+        OutageAdapter outageAdapter = new OutageAdapter();
+        DailyScheduleBuilder scheduleBuilder = new DailyScheduleBuilder(this, scrollViewSchedule, outageAdapter, timeSlotAdapter);
         scheduleBuilder.build();
 
-        dayScheduleViewModel.getDaySchedule("").observe(this, daySchedule -> {
-            eventAdapter.setOutages(daySchedule.getSchedule().getOutages());
-            scheduleBuilder.build();
+        dayScheduleViewModel.getDaySchedule("", LocalDate.now()).observe(this, daySchedule -> {
+            outageAdapter.setOutages(daySchedule.getSchedule().getOutages());
 
             txtDate.setText(daySchedule.getSchedule().getDate());
             txtAreaName.setText(daySchedule.getSchedule().getAreaName());

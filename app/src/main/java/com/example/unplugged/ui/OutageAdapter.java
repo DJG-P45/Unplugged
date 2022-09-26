@@ -7,17 +7,19 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.example.unplugged.R;
 import com.example.unplugged.data.dto.OutageDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadSheddingEventAdapter implements EventAdapter <LoadSheddingEventAdapter.EventViewHolder> {
+public class OutageAdapter extends DailyScheduleAdapter {
 
     private List<OutageDto> outages;
 
-    public LoadSheddingEventAdapter() {
+    public OutageAdapter() {
         this.outages = new ArrayList<>();
     }
 
@@ -35,7 +37,10 @@ public class LoadSheddingEventAdapter implements EventAdapter <LoadSheddingEvent
         int start = outage.getStart().getHour() * 60;
         start += outage.getStart().getMinute();
 
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int)(250 * sp),(int)(outage.getDurationInMinutes() * dp));
+        int width = (int)(250 * sp);
+        int height = (int)(outage.getDurationInMinutes() * dp);
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(width, height);
         params.topMargin = (int)(start * dp);
         params.leftMargin = (int)(60 * dp);
         viewHolder.layout.setLayoutParams(params);
@@ -50,11 +55,12 @@ public class LoadSheddingEventAdapter implements EventAdapter <LoadSheddingEvent
         return outages.size();
     }
 
-    public void setOutages(List<OutageDto> outages) {
+    public void setOutages(@NonNull List<OutageDto> outages) {
         this.outages = outages;
+        notifyDataSetChanged();
     }
 
-    protected class EventViewHolder extends DailyScheduleBuilder.ViewHolder {
+    protected static class EventViewHolder extends DailyScheduleBuilder.ViewHolder {
 
         public LinearLayout layout;
         public TextView label;

@@ -7,18 +7,24 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
+import androidx.annotation.NonNull;
+
 public class DailyScheduleBuilder {
 
-    private Context context;
+    private final Context context;
     private final ScrollView scrollView;
-    private final EventAdapter eventAdapter;
-    private final TimeSlotAdapter timeSlotAdapter;
+    private final DailyScheduleAdapter dailyScheduleAdapter, eventAdapter;
 
-    public DailyScheduleBuilder(Context context, ScrollView scrollView, EventAdapter eventAdapter, TimeSlotAdapter timeSlotAdapter) {
+    public DailyScheduleBuilder(@NonNull Context context,
+                                @NonNull ScrollView scrollView,
+                                @NonNull DailyScheduleAdapter eventAdapter,
+                                @NonNull DailyScheduleAdapter dailyScheduleAdapter) {
         this.context = context;
         this.scrollView = scrollView;
         this.eventAdapter = eventAdapter;
-        this.timeSlotAdapter = timeSlotAdapter;
+        this.eventAdapter.setBuilder(this);
+        this.dailyScheduleAdapter = dailyScheduleAdapter;
+        this.dailyScheduleAdapter.setBuilder(this);
     }
 
     public void build() {
@@ -28,8 +34,8 @@ public class DailyScheduleBuilder {
         // Create time slots
         LinearLayout linearLayout = createLinearLayout();
 
-        for (int s = 0; s < timeSlotAdapter.getItemCount(); s++) {
-            ViewHolder timeSlot = timeSlotAdapter.createView(linearLayout, s);
+        for (int s = 0; s < dailyScheduleAdapter.getItemCount(); s++) {
+            ViewHolder timeSlot = dailyScheduleAdapter.createView(linearLayout, s);
             linearLayout.addView(timeSlot.getView());
         }
 

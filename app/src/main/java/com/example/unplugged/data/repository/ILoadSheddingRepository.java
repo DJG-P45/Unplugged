@@ -24,6 +24,6 @@ public interface ILoadSheddingRepository {
 
     LiveData<AreaDto> getArea(String areaId);
 
-    LiveData<DayScheduleDto> getDaySchedule(AreaDto areaDto, LocalDate date);
+    LiveData<DayScheduleDto> getDaySchedule(String areaId, LocalDate date);
 
 }

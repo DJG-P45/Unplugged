@@ -20,60 +20,26 @@ public class DayScheduleViewModel extends AndroidViewModel {
 
     private final ILoadSheddingRepository repository;
     private final MutableLiveData<DaySchedule> uiSchedule;
-    private LocalDate scheduleDate;
-    private final MutableLiveData<AreaDto> area;
 
     public DayScheduleViewModel(@NonNull Application application) {
         super(application);
 
         repository = new LoadSheddingRepository(application);
-        area = new MutableLiveData<>();
         uiSchedule = new MutableLiveData<>();
-        scheduleDate = LocalDate.now();
     }
 
-    public LiveData<DaySchedule> getDaySchedule(String areaId) {
-        repository.getArea(areaId).observeForever(area::setValue);
-        loadDaySchedule();
+    public LiveData<DaySchedule> getDaySchedule(String areaId, LocalDate date) {
+        repository.getDaySchedule(areaId, date).observeForever(dayScheduleDto -> {
+            DaySchedule schedule = new DaySchedule();
+            schedule.setSchedule(dayScheduleDto);
+
+            // Set UI State action properties
+            schedule.setTodaySchedule(() -> getDaySchedule(areaId, LocalDate.now()));
+            schedule.setNextDaySchedule(() -> getDaySchedule(areaId, date.plusDays(1)));
+            schedule.setPreviousDaySchedule(() -> getDaySchedule(areaId, date.minusDays(1)));
+            uiSchedule.setValue(schedule);
+        });
         return uiSchedule;
     }
 
-    private void loadDaySchedule() {
-        area.observeForever(areaDto -> {
-            DaySchedule schedule = new DaySchedule();
-
-            // Set UI State action properties
-            schedule.setTodaySchedule(loadTodaySchedule());
-            schedule.setNextDaySchedule(loadNextDaySchedule());
-            schedule.setPreviousDaySchedule(loadPreviousDaySchedule());
-
-            // Set UI State value properties
-            repository.getDaySchedule(areaDto, scheduleDate).observeForever(dayScheduleDto -> {
-                schedule.setSchedule(dayScheduleDto);
-                uiSchedule.setValue(schedule);
-            });
-
-        });
-    }
-
-    private Runnable loadTodaySchedule() {
-        return () -> {
-            scheduleDate = LocalDate.now();
-            loadDaySchedule();
-        };
-    }
-
-    private Runnable loadNextDaySchedule() {
-        return () -> {
-            scheduleDate = scheduleDate.plusDays(1);
-            loadDaySchedule();
-        };
-    }
-
-    private Runnable loadPreviousDaySchedule() {
-        return () -> {
-            scheduleDate = scheduleDate.minusDays(1);
-            loadDaySchedule();
-        };
-    }
 }

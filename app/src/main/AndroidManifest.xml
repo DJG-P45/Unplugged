@@ -14,7 +14,7 @@
         android:theme="@style/Theme.Unplugged"
         tools:targetApi="31">
         <activity
-            android:name=".LoadSheddingScheduleActivity"
+            android:name=".DailyScheduleActivity"
             android:exported="false" />
         <activity
             android:name=".AddAreaActivity"

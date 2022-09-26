@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 public class EskomSePushNetworkApi {
 
-    public void getStatus(Consumer<JSONObject> resultConsumer) {
+    public void getStatus(Consumer<String> resultConsumer) {
         try {
             JSONObject result = new JSONObject("{\n" +
                     "    \"status\": {\n" +
@@ -44,13 +44,13 @@ public class EskomSePushNetworkApi {
                     "    }\n" +
                     "}");
 
-            resultConsumer.accept(result);
+            resultConsumer.accept(result.getJSONObject("status").getJSONObject("eskom").toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void getAreaInfo(String id, Consumer<JSONObject> resultConsumer) {
+    public void getAreaInfo(String id, Consumer<String> resultConsumer) {
         try {
             JSONObject result = new JSONObject("{\n" +
                     "    \"events\": [\n" +
@@ -274,13 +274,13 @@ public class EskomSePushNetworkApi {
                     "        \"source\": \"https://loadshedding.eskom.co.za/\"\n" +
                     "    }\n" +
                     "}");
-            resultConsumer.accept(result);
+            resultConsumer.accept(result.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void findAreas(String searchText, Consumer<JSONObject> resultConsumer) {
+    public void findAreas(String searchText, Consumer<String> resultConsumer) {
         try {
             JSONObject result = new JSONObject("{\n" +
                     "    \"areas\": [\n" +
@@ -356,7 +356,7 @@ public class EskomSePushNetworkApi {
                     "        }\n" +
                     "    ]\n" +
                     "}");
-            resultConsumer.accept(result);
+            resultConsumer.accept(result.getJSONArray("areas").toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
