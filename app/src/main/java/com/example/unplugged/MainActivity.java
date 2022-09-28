@@ -3,6 +3,7 @@ package com.example.unplugged;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -12,8 +13,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.unplugged.ui.AreaRecyclerAdapter;
+import com.example.unplugged.ui.RemoveAreaCallback;
 import com.example.unplugged.ui.viewmodel.AreasViewModel;
 
 import java.util.Objects;
@@ -21,7 +24,6 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 
     private TextView txtStatusTitle, txtStatusSubtitle;
-    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         AreasViewModel viewModel = new ViewModelProvider(this).get(AreasViewModel.class);
 
         // Enable custom toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbarDashboard);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarDashboard);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
@@ -50,12 +52,24 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // Set up the ability to remove observed areas by swiping left
+        RemoveAreaCallback removeAreaCallback = new RemoveAreaCallback(adapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(removeAreaCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
+        // Get observed areas and populate recycler view
         viewModel.getObservedAreas().observe(this, adapter::setAreas);
+
+        // Display any possible error that might arise from the data layer
+        viewModel.getUiErrorFeed().observe(this, msg -> {
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        });
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // handle arrow click here
+        // Handle arrow click here
         if (item.getItemId() == R.id.menuItemAdd) {
             Intent intent = new Intent(this, AddAreaActivity.class);
             startActivity(intent);

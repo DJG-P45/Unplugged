@@ -3,9 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2425" />
         <entry key="app/src/main/res/drawable/ic_add.xml" value="0.2595" />
         <entry key="app/src/main/res/drawable/ic_arrow_circle_left.xml" value="0.2595" />
         <entry key="app/src/main/res/drawable/ic_arrow_circle_right.xml" value="0.2595" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.154" />
+        <entry key="app/src/main/res/drawable/ic_unplugged.xml" value="0.2425" />
         <entry key="app/src/main/res/drawable/ic_warning.xml" value="0.219" />
         <entry key="app/src/main/res/layout/activity_add_area.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_loadshedding_schedule.xml" value="0.3098958333333333" />
@@ -19,6 +22,9 @@
         <entry key="app/src/main/res/layout/menu_main.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/time_block.xml" value="0.335" />
         <entry key="app/src/main/res/menu/menu_dashboard.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2425" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.2425" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_uplugged.xml" value="0.2425" />
       </map>
     </option>
   </component>

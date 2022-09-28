@@ -10,13 +10,13 @@ import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.unplugged.ui.DailyScheduleBuilder;
 import com.example.unplugged.ui.HourlyScheduleAdapter;
 import com.example.unplugged.ui.OutageAdapter;
 import com.example.unplugged.ui.viewmodel.DayScheduleViewModel;
 
-import java.time.LocalDate;
 import java.util.Objects;
 
 public class DailyScheduleActivity extends AppCompatActivity {
@@ -32,6 +32,9 @@ public class DailyScheduleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_schedule);
 
+        dayScheduleViewModel = new ViewModelProvider(this).get(DayScheduleViewModel.class);
+
+        // Retrieve ui views
         toolbar = (Toolbar) findViewById(R.id.toolbarSchedule);
         txtDate = findViewById(R.id.txtScheduleDate);
         txtAreaName = findViewById(R.id.txtScheduleAreaName);
@@ -40,17 +43,18 @@ public class DailyScheduleActivity extends AppCompatActivity {
         btnPreviousDay = findViewById(R.id.btnSchedulePrevious);
         scrollViewSchedule = findViewById(R.id.scrollViewDailySchedule);
 
+        // Enable toolbar
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
-        dayScheduleViewModel = new ViewModelProvider(this).get(DayScheduleViewModel.class);
-
+        // Init hourly schedule view
         HourlyScheduleAdapter timeSlotAdapter = new HourlyScheduleAdapter();
         OutageAdapter outageAdapter = new OutageAdapter();
         DailyScheduleBuilder scheduleBuilder = new DailyScheduleBuilder(this, scrollViewSchedule, outageAdapter, timeSlotAdapter);
         scheduleBuilder.build();
 
-        dayScheduleViewModel.getDaySchedule("", LocalDate.now()).observe(this, daySchedule -> {
+        // When daily outage schedule present update ui views
+        dayScheduleViewModel.getDaySchedule("").observe(this, daySchedule -> {
             outageAdapter.setOutages(daySchedule.getSchedule().getOutages());
 
             txtDate.setText(daySchedule.getSchedule().getDate());
@@ -61,6 +65,10 @@ public class DailyScheduleActivity extends AppCompatActivity {
             btnPreviousDay.setOnClickListener(view -> daySchedule.loadPreviousDaySchedule());
         });
 
+        // Display any possible error that might arise from the data layer
+        dayScheduleViewModel.getUiErrorFeed().observe(this, msg -> {
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override

@@ -12,6 +12,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.unplugged.ui.FoundAreasRecyclerAdapter;
 import com.example.unplugged.ui.viewmodel.AddAreaViewModel;
@@ -25,33 +26,38 @@ public class AddAreaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_area);
 
+        AddAreaViewModel addAreaViewModel = new ViewModelProvider(this).get(AddAreaViewModel.class);
+
+        // Retrieve ui views
         Toolbar toolbar = findViewById(R.id.toolbarAddArea);
         RecyclerView recyclerFoundAreas = findViewById(R.id.recyclerFoundAreas);
         EditText edtTxtAreaSearch = findViewById(R.id.edtTxtAreaSearch);
 
+        // Enable toolbar
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
+        // Init recycler view that displays areas match search text
         FoundAreasRecyclerAdapter adapter = new FoundAreasRecyclerAdapter();
         recyclerFoundAreas.setAdapter(adapter);
         recyclerFoundAreas.setLayoutManager(new LinearLayoutManager(this));
 
-        AddAreaViewModel addAreaViewModel = new ViewModelProvider(this).get(AddAreaViewModel.class);
+        // Display any possible error that might arise from the data layer
+        addAreaViewModel.getUiErrorFeed().observe(this, msg -> {
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        });
 
+        // If user types in search edit text query data layer for possible suggestions matching user input
         edtTxtAreaSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
             public void afterTextChanged(Editable editable) {
-                addAreaViewModel.findAreas(edtTxtAreaSearch.getText().toString()).observe(AddAreaActivity.this, adapter::setFoundAreas);
+                addAreaViewModel.findAreas(editable.toString()).observe(AddAreaActivity.this, adapter::setFoundAreas);
             }
         });
     }

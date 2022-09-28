@@ -19,8 +19,14 @@ public class StageDto {
 
         for (String range : outages) {
             String[] times = range.split("-");
-            OutageDto outageDto = new OutageDto(LocalTime.parse(times[0]), LocalTime.parse(times[1]));
-            this.outages.add(outageDto);
+
+            LocalTime start = LocalTime.parse(times[0]);
+            LocalTime end = LocalTime.parse(times[1]);
+
+            if (start.isBefore(end)) {
+                OutageDto outageDto = new OutageDto(start, end);
+                this.outages.add(outageDto);
+            }
         }
     }
 

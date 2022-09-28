@@ -6,11 +6,15 @@ import com.example.unplugged.data.dto.AreaDto;
 import com.example.unplugged.data.dto.DayScheduleDto;
 import com.example.unplugged.data.dto.FoundAreaDto;
 import com.example.unplugged.data.dto.StatusDto;
+import com.example.unplugged.data.other.ErrorCategory;
+import com.example.unplugged.ui.viewmodel.Consumable;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface ILoadSheddingRepository {
+
+    LiveData<Consumable<ErrorCategory>> getErrorFeed();
 
     LiveData<StatusDto> getStatus();
 

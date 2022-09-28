@@ -58,6 +58,13 @@ public class AreaRecyclerAdapter extends RecyclerView.Adapter <AreaRecyclerAdapt
         notifyDataSetChanged();
     }
 
+    public void removeAt(int position) {
+        Area area = areas.get(position);
+        area.removeArea();
+        areas.remove(position);
+        notifyItemRemoved(position);
+    }
+
     protected static class AreaViewHolder extends RecyclerView.ViewHolder {
 
         public TextView name, region, event;

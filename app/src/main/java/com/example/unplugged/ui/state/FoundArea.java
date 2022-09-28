@@ -1,36 +1,28 @@
 package com.example.unplugged.ui.state;
 
+import com.example.unplugged.data.dto.FoundAreaDto;
+
 import java.util.Objects;
 
 public class FoundArea {
 
-    private String title;
-    private String subtitle;
+    private FoundAreaDto foundAreaDto;
     private Runnable observeArea;
 
     public FoundArea() {
     }
 
-    public FoundArea(String title, String subtitle, Runnable observeArea) {
-        this.title = title;
-        this.subtitle = subtitle;
+    public FoundArea(FoundAreaDto foundAreaDto, Runnable observeArea) {
+        this.foundAreaDto = foundAreaDto;
         this.observeArea = observeArea;
     }
 
     public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+        return foundAreaDto.getName();
     }
 
     public String getSubtitle() {
-        return subtitle;
-    }
-
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
+        return foundAreaDto.getRegion();
     }
 
     public void observeArea() {
@@ -39,5 +31,9 @@ public class FoundArea {
 
     public void setObserveArea(Runnable observeArea) {
         this.observeArea = observeArea;
+    }
+
+    public void setFoundAreaDto(FoundAreaDto foundAreaDto) {
+        this.foundAreaDto = foundAreaDto;
     }
 }

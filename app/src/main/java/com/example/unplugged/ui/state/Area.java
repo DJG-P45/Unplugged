@@ -1,37 +1,47 @@
 package com.example.unplugged.ui.state;
 
+import com.example.unplugged.data.dto.AreaDto;
+
 import java.util.Objects;
 
 public class Area {
 
-    private String id;
-    private String name;
-    private String region;
-    private String event;
+    private AreaDto areaDto;
     private Runnable removeArea;
 
-    public String getName() {
-        return name;
+    public Area() {
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Area(AreaDto areaDto, Runnable removeArea) {
+        this.areaDto = areaDto;
+        this.removeArea = removeArea;
+    }
+
+    public AreaDto getAreaDto() {
+        return areaDto;
+    }
+
+    public void setAreaDto(AreaDto areaDto) {
+        this.areaDto = areaDto;
+    }
+
+    public String getId() {
+        return areaDto.getId();
+    }
+
+    public String getName() {
+        return areaDto.getInfo().getName();
     }
 
     public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
+        return areaDto.getInfo().getRegion();
     }
 
     public String getEvent() {
-        return event;
-    }
-
-    public void setEvent(String event) {
-        this.event = event;
+        if (areaDto.getEvents().size() > 0) {
+            return areaDto.getEvents().get(0).toString();
+        }
+        return "No outages expected";
     }
 
     public void removeArea() {
@@ -42,11 +52,4 @@ public class Area {
         this.removeArea = removeArea;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 }
