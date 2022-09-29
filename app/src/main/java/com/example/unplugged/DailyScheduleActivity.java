@@ -53,8 +53,18 @@ public class DailyScheduleActivity extends AppCompatActivity {
         DailyScheduleBuilder scheduleBuilder = new DailyScheduleBuilder(this, scrollViewSchedule, outageAdapter, timeSlotAdapter);
         scheduleBuilder.build();
 
+        // Get ID of area so its schedule can be retrieved
+        String areaId = "";
+        Bundle extras = getIntent().getExtras();
+
+        if (extras == null) {
+            Toast.makeText(this, "Could not determine area!", Toast.LENGTH_SHORT).show();
+        } else {
+            areaId = extras.getString("AREA_ID");
+        }
+
         // When daily outage schedule present update ui views
-        dayScheduleViewModel.getDaySchedule("").observe(this, daySchedule -> {
+        dayScheduleViewModel.getDaySchedule(areaId).observe(this, daySchedule -> {
             outageAdapter.setOutages(daySchedule.getSchedule().getOutages());
 
             txtDate.setText(daySchedule.getSchedule().getDate());

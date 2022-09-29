@@ -21,6 +21,9 @@ public interface ObservedAreaDao {
         @Query("DELETE FROM observed_area WHERE id = :id") // Not a convenience annotation, need to provide own thread management.
         void delete(String id);
 
-        @Query("SELECT * from observed_area") // Not a convenience annotation, need to provide own thread management.
+        @Query("SELECT * FROM observed_area") // Not a convenience annotation, need to provide own thread management.
         LiveData<List<ObservedAreaEntity>> getAllObservedAreas(); // The use of LiveData pushes this onto it's own thread.
+
+        @Query("SELECT EXISTS(SELECT * FROM observed_area WHERE id = :id)") // Not a convenience annotation, need to provide own thread management.
+        Boolean observedAreaExists(String id);
 }

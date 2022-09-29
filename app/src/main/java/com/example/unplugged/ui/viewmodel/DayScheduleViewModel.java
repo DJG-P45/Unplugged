@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.unplugged.data.other.ErrorCategory;
 import com.example.unplugged.data.repository.ILoadSheddingRepository;
 import com.example.unplugged.data.repository.LoadSheddingRepository;
 import com.example.unplugged.ui.state.DaySchedule;

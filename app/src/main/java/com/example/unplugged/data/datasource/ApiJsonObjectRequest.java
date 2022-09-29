@@ -11,6 +11,10 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A wrapper class for JsonObjectRequest that allows one to assign
+ * their own headers to a request. i.e. Auth token
+ */
 public class ApiJsonObjectRequest extends JsonObjectRequest {
 
     private HashMap<String, String> headers;

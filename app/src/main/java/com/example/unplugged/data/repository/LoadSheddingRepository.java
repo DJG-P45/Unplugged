@@ -5,7 +5,8 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.unplugged.data.datasource.PseudoEskomSePushNetworkApi;
+import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
+import com.example.unplugged.data.datasource.IApiCallback;
 import com.example.unplugged.data.datasource.ObservedAreaDao;
 import com.example.unplugged.data.datasource.UnpluggedDatabase;
 import com.example.unplugged.data.dto.AreaDto;
@@ -27,18 +28,20 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class LoadSheddingRepository implements ILoadSheddingRepository {
 
     private final ObservedAreaDao observedAreaDao;
-    private final PseudoEskomSePushNetworkApi pseudoEskomSePushNetworkApi;
+    private final EskomSePushNetworkApi eskomSePushNetworkApi;
     private final ObjectMapper mapper;
     private final MutableLiveData<Consumable<ErrorCategory>> errorFeed;
 
     public LoadSheddingRepository(Application application) {
-        this.pseudoEskomSePushNetworkApi = new PseudoEskomSePushNetworkApi();
+        this.eskomSePushNetworkApi = new EskomSePushNetworkApi(application);
         UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
         observedAreaDao = db.observedAreaDao();
         mapper = new ObjectMapper();
@@ -53,27 +56,47 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     }
 
     @Override
-    public void observeArea(String id) {
-        runAsync(() -> observedAreaDao.insert(new ObservedAreaEntity(id)));
+    public void observeArea(final String id) {
+        Observable.create(emitter -> {
+            if (!observedAreaDao.observedAreaExists(id)) observedAreaDao.insert(new ObservedAreaEntity(id));
+        }).subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe();
     }
 
     @Override
-    public void removeObservedArea(String id) {
-        runAsync(() -> observedAreaDao.delete(id));
+    public void removeObservedArea(final String id) {
+        Observable.create(emitter -> observedAreaDao.delete(id))
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe();
     }
 
     @Override
     public LiveData<StatusDto> getStatus() {
         MutableLiveData<StatusDto> mutableLiveData = new MutableLiveData<>();
 
-        runAsync(() -> pseudoEskomSePushNetworkApi.getStatus(getErrorConsumer(), json -> {
-            try {
-                mutableLiveData.postValue(mapper.readValue(json, StatusDto.class));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-                error(ErrorCategory.SYSTEM);
-            }
-        }));
+        Observable.create(emitter -> {
+            eskomSePushNetworkApi.getStatus(new IApiCallback() {
+                @Override
+                public void onResponse(String json) {
+                    try {
+                        StatusDto statusDto = mapper.readValue(json, StatusDto.class);
+                        emitter.onNext(statusDto);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                        emitter.onError(e);
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    emitter.onError(new Exception());
+                }
+            });
+        }).subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(o -> mutableLiveData.setValue((StatusDto) o), this::processError);
 
         return mutableLiveData;
     }
@@ -82,16 +105,26 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<List<FoundAreaDto>> findAreas(String searchText) {
         MutableLiveData<List<FoundAreaDto>> mutableLiveData = new MutableLiveData<>();
 
-        runAsync(() -> pseudoEskomSePushNetworkApi.findAreas(searchText, getErrorConsumer(), json -> {
-            FoundAreaDto[] foundAreaArray = new FoundAreaDto[0];
-            try {
-                foundAreaArray = mapper.readValue(json, FoundAreaDto[].class);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-                error(ErrorCategory.SYSTEM);
-            }
-            mutableLiveData.postValue(new ArrayList<>(Arrays.asList(foundAreaArray)));
-        }));
+        Observable.create(emitter -> {
+            eskomSePushNetworkApi.findAreas(searchText, new IApiCallback() {
+                @Override
+                public void onResponse(String json) {
+                    try {
+                        FoundAreaDto[] foundAreaArray = mapper.readValue(json, FoundAreaDto[].class);
+                        emitter.onNext(Arrays.asList(foundAreaArray));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    emitter.onError(new Exception());
+                }
+            });
+        }).subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(o -> mutableLiveData.setValue((List<FoundAreaDto>) o), this::processError);
 
         return mutableLiveData;
     }
@@ -106,7 +139,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
             for (ObservedAreaEntity entity : observedAreas) {
                 getArea(entity.getId()).observeForever(areaDto -> {
                     areas.add(areaDto);
-                    mutableLiveData.postValue(areas);
+                    mutableLiveData.setValue(areas);
                 });
             }
         });
@@ -118,23 +151,33 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<AreaDto> getArea(String areaId) {
         MutableLiveData<AreaDto> mutableLiveData = new MutableLiveData<>();
 
-        runAsync(() -> pseudoEskomSePushNetworkApi.getAreaInfo(areaId, getErrorConsumer(), json -> {
-            AreaDto areaDto = null;
-            try {
-                areaDto = mapper.readValue(json, AreaDto.class);
-                areaDto.setId(areaId);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-                error(ErrorCategory.SYSTEM);
-            }
-            mutableLiveData.postValue(areaDto);
-        }));
+        Observable.create(emitter -> {
+            eskomSePushNetworkApi.getAreaInfo(areaId, new IApiCallback() {
+                @Override
+                public void onResponse(String json) {
+                    try {
+                        AreaDto areaDto = mapper.readValue(json, AreaDto.class);
+                        areaDto.setId(areaId);
+                        emitter.onNext(areaDto);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    emitter.onError(new Exception());
+                }
+            });
+        }).subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(o -> mutableLiveData.setValue((AreaDto) o), this::processError);
 
         return mutableLiveData;
     }
 
     @Override
-    public LiveData<DayScheduleDto> getDaySchedule(String areaId, LocalDate date) {
+    public LiveData<DayScheduleDto> getDaySchedule(final String areaId, LocalDate date) {
         MutableLiveData<DayScheduleDto> mutableLiveData = new MutableLiveData<>();
 
         getStatus().observeForever(statusDto -> getArea(areaId).observeForever(areaDto -> {
@@ -157,16 +200,12 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         return  mutableLiveData;
     }
 
-    private static void runAsync(Runnable runnable) {
-        Executors.newSingleThreadExecutor().execute(runnable);
-    }
 
-    private synchronized void error(ErrorCategory errorCategory) {
-        errorFeed.postValue(new Consumable<>(errorCategory));
-    }
-
-    private Consumer<String> getErrorConsumer() {
-        return s -> error(ErrorCategory.NETWORK);
+    private void processError(Throwable throwable) {
+        if (throwable instanceof JsonProcessingException) {
+            errorFeed.postValue(new Consumable<>(ErrorCategory.SYSTEM));
+        }
+        errorFeed.postValue(new Consumable<>(ErrorCategory.NETWORK));
     }
 
     private static String totalDowntime(List<OutageDto> outages) {

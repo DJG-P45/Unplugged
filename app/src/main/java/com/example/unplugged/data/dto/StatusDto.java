@@ -1,6 +1,5 @@
 package com.example.unplugged.data.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.time.ZonedDateTime;
@@ -37,7 +36,6 @@ public class StatusDto {
     }
 
     public String getElapsedTime() {
-        // TODO: Maybe there should be check to see if updated date is before current date?
         long timeSince = updated.until(ZonedDateTime.now(), ChronoUnit.HOURS);
         return  ("Since " + timeSince + " hours ago");
     }

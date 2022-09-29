@@ -3,11 +3,9 @@ package com.example.unplugged.data.datasource;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.function.Consumer;
-
 public class PseudoEskomSePushNetworkApi {
 
-    public void getStatus(Consumer<String> onError, Consumer<String> onResponse) {
+    public void getStatus(IApiCallback callback) {
         try {
             JSONObject result = new JSONObject("{\n" +
                     "    \"status\": {\n" +
@@ -44,14 +42,13 @@ public class PseudoEskomSePushNetworkApi {
                     "    }\n" +
                     "}");
 
-            onResponse.accept(result.getJSONObject("status").getJSONObject("eskom").toString());
-            onError.accept("Oops");
+            callback.onResponse(result.getJSONObject("status").getJSONObject("eskom").toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void getAreaInfo(String id, Consumer<String> onError, Consumer<String> onResponse) {
+    public void getAreaInfo(String id, IApiCallback callback) {
         try {
             JSONObject result = new JSONObject("{\n" +
                     "    \"events\": [\n" +
@@ -275,14 +272,13 @@ public class PseudoEskomSePushNetworkApi {
                     "        \"source\": \"https://loadshedding.eskom.co.za/\"\n" +
                     "    }\n" +
                     "}");
-            onResponse.accept(result.toString());
-            onError.accept("Oops");
+            callback.onResponse(result.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void findAreas(String searchText, Consumer<String> onError, Consumer<String> onResponse) {
+    public void findAreas(String searchText, IApiCallback callback) {
         try {
             JSONObject result = new JSONObject("{\n" +
                     "    \"areas\": [\n" +
@@ -358,7 +354,7 @@ public class PseudoEskomSePushNetworkApi {
                     "        }\n" +
                     "    ]\n" +
                     "}");
-            onResponse.accept(result.getJSONArray("areas").toString());
+            callback.onResponse(result.getJSONArray("areas").toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }

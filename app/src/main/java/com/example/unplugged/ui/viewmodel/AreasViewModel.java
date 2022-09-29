@@ -3,13 +3,11 @@ package com.example.unplugged.ui.viewmodel;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.unplugged.data.dto.AreaDto;
 import com.example.unplugged.data.dto.StatusDto;
-import com.example.unplugged.data.other.ErrorCategory;
 import com.example.unplugged.data.repository.ILoadSheddingRepository;
 import com.example.unplugged.data.repository.LoadSheddingRepository;
 import com.example.unplugged.ui.state.Area;
@@ -45,9 +43,8 @@ public class AreasViewModel extends BaseViewModel {
     }
 
     public LiveData<List<Area>> getObservedAreas() {
-        List<Area> areasBuffer = new ArrayList<>();
-
         areas.observeForever(areaDtos -> {
+            List<Area> areasBuffer = new ArrayList<>();
             for (AreaDto areaDto : areaDtos) {
                 Area area = new Area(areaDto, () -> repository.removeObservedArea(areaDto.getId()));
                 areasBuffer.add(area);

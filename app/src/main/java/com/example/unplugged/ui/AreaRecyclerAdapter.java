@@ -17,6 +17,7 @@ import com.example.unplugged.ui.state.Area;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class AreaRecyclerAdapter extends RecyclerView.Adapter <AreaRecyclerAdapter.AreaViewHolder> {
 
