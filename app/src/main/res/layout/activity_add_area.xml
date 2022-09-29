@@ -58,18 +58,20 @@
                     android:textColorHint="@color/dark_gray"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/imgClear"
+                    app:layout_constraintEnd_toStartOf="@+id/btnSearch"
                     app:layout_constraintStart_toEndOf="@+id/imgSearch"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.0"
                     android:textColor="@color/dark_gray"/>
 
-                <ImageButton
-                    android:id="@+id/imgClear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <Button
+                    android:id="@+id/btnSearch"
+                    android:layout_width="72dp"
+                    android:layout_height="47dp"
                     android:background="@color/dark_blue"
-                    android:src="@drawable/ic_clear"
+                    android:text="@string/search"
+                    android:textStyle="bold"
+                    android:elevation="0dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

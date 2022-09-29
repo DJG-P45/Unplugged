@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -32,6 +34,7 @@ public class AddAreaActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbarAddArea);
         RecyclerView recyclerFoundAreas = findViewById(R.id.recyclerFoundAreas);
         EditText edtTxtAreaSearch = findViewById(R.id.edtTxtAreaSearch);
+        Button btnSearch = findViewById(R.id.btnSearch);
 
         // Enable toolbar
         setSupportActionBar(toolbar);
@@ -47,19 +50,8 @@ public class AddAreaActivity extends AppCompatActivity {
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         });
 
-        // If user types in search edit text query data layer for possible suggestions matching user input
-        edtTxtAreaSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                addAreaViewModel.findAreas(editable.toString()).observe(AddAreaActivity.this, adapter::setFoundAreas);
-            }
-        });
+        // If user types in search text and presses btn query data layer for possible suggestions matching user input
+        btnSearch.setOnClickListener(view -> addAreaViewModel.findAreas(edtTxtAreaSearch.getText().toString()).observe(AddAreaActivity.this, adapter::setFoundAreas));
     }
 
     @Override

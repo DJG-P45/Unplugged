@@ -6,13 +6,12 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.PseudoEskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.UnpluggedDatabase;
 import com.example.unplugged.data.dto.AreaDto;
 import com.example.unplugged.data.dto.StatusDto;
-import com.example.unplugged.repository.ILoadSheddingRepository;
-import com.example.unplugged.repository.LoadSheddingRepository;
+import com.example.unplugged.data.repository.ILoadSheddingRepository;
+import com.example.unplugged.data.repository.LoadSheddingRepository;
 import com.example.unplugged.ui.state.Area;
 import com.example.unplugged.ui.state.Status;
 

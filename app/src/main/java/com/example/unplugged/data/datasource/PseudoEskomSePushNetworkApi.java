@@ -7,10 +7,14 @@ import io.reactivex.rxjava3.core.Single;
 
 public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
 
+    private static int count = 0;
+
     @Override
     public Single<String> getStatus() {
         return Single.create(emitter -> {
             try {
+                count++;
+                System.out.println(count);
                 JSONObject result = new JSONObject("{\n" +
                         "    \"status\": {\n" +
                         "        \"capetown\": {\n" +
@@ -56,6 +60,8 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
     public Single<String> getAreaInfo(String id) {
         return Single.create(emitter -> {
             try {
+                count++;
+                System.out.println(count);
                 JSONObject result = new JSONObject("{\n" +
                         "    \"events\": [\n" +
                         "        {\n" +
@@ -286,9 +292,11 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
     }
 
     @Override
-    public Single<String> findAreas(String searchText) {
+    public synchronized Single<String> findAreas(String searchText) {
         return Single.create(emitter -> {
             try {
+                count++;
+                System.out.println(count);
                 JSONObject result = new JSONObject("{\n" +
                         "    \"areas\": [\n" +
                         "        {\n" +

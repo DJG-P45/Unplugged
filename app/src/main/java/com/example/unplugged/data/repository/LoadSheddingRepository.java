@@ -1,8 +1,10 @@
-package com.example.unplugged.repository;
+package com.example.unplugged.data.repository;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.unplugged.data.datasource.ApiException;
+import com.example.unplugged.data.datasource.ApiNetworkException;
 import com.example.unplugged.data.datasource.LoadSheddingApi;
 import com.example.unplugged.data.datasource.ObservedAreaDao;
 import com.example.unplugged.data.dto.AreaDto;
@@ -15,6 +17,8 @@ import com.example.unplugged.data.dto.StatusDto;
 import com.example.unplugged.data.entity.ObservedAreaEntity;
 import com.example.unplugged.data.other.ErrorCategory;
 import com.example.unplugged.data.other.PrettyTime;
+import com.example.unplugged.data.other.ScheduleProviderFactory;
+import com.example.unplugged.data.other.SchedulerProvider;
 import com.example.unplugged.ui.viewmodel.Consumable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -37,6 +41,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     private final LoadSheddingApi loadSheddingApi;
     private final ObjectMapper mapper;
     private final MutableLiveData<Consumable<ErrorCategory>> errorFeed;
+    private final SchedulerProvider sp;
 
     public LoadSheddingRepository(LoadSheddingApi loadSheddingApi, ObservedAreaDao observedAreaDao) {
         this.loadSheddingApi = loadSheddingApi;
@@ -45,6 +50,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         this.mapper.registerModule(new JavaTimeModule());
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.errorFeed = new MutableLiveData<>();
+        this.sp = ScheduleProviderFactory.getScheduleProvider();
     }
 
     @Override
@@ -64,8 +70,8 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     @Override
     public void removeObservedArea(final String id) {
         Observable.create(emitter -> observedAreaDao.delete(id))
-        .subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
+        .subscribeOn(sp.newThread())
+        .observeOn(sp.mainThread())
         .subscribe();
     }
 
@@ -74,8 +80,8 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         MutableLiveData<StatusDto> mutableLiveData = new MutableLiveData<>();
 
         loadSheddingApi.getStatus()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(sp.newThread())
+                .observeOn(sp.mainThread())
                 .subscribe(s -> {
                     try {
                         mutableLiveData.setValue(mapper.readValue(s, StatusDto.class));
@@ -92,8 +98,8 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         MutableLiveData<List<FoundAreaDto>> mutableLiveData = new MutableLiveData<>();
 
         loadSheddingApi.findAreas(searchText)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(sp.newThread())
+                .observeOn(sp.mainThread())
                 .subscribe(s -> {
                     try {
                         FoundAreaDto[] foundAreaArray = mapper.readValue(s, FoundAreaDto[].class);
@@ -129,8 +135,8 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         MutableLiveData<AreaDto> mutableLiveData = new MutableLiveData<>();
 
         loadSheddingApi.getAreaInfo(areaId)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(sp.newThread())
+                .observeOn(sp.mainThread())
                 .subscribe(s -> {
                     try {
                         AreaDto areaDto = mapper.readValue(s, AreaDto.class);
@@ -172,10 +178,17 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     private void processError(Throwable throwable) {
         throwable.printStackTrace();
 
-        if (throwable instanceof JsonProcessingException) {
-            errorFeed.postValue(new Consumable<>(ErrorCategory.SYSTEM));
+        ErrorCategory errorCategory = ErrorCategory.UNKNOWN;
+
+        if (throwable instanceof ApiException) {
+            errorCategory = ErrorCategory.SERVICE;
+        } else if (throwable instanceof ApiNetworkException) {
+            errorCategory = ErrorCategory.NETWORK;
+        } else if (throwable instanceof JsonProcessingException) {
+            errorCategory = ErrorCategory.SERVICE;
         }
-        errorFeed.postValue(new Consumable<>(ErrorCategory.NETWORK));
+
+        errorFeed.postValue(new Consumable<>(errorCategory));
     }
 
     private static String totalDowntime(List<OutageDto> outages) {

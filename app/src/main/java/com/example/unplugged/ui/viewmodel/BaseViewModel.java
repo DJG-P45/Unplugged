@@ -29,7 +29,7 @@ public abstract class BaseViewModel extends AndroidViewModel {
             if (consumable.notConsumed()) {
                 switch (consumable.consume()) {
                     case NETWORK: uiErrorFeed.setValue("Network Error"); break;
-                    case SYSTEM: uiErrorFeed.setValue("System Error"); break;
+                    case SERVICE: uiErrorFeed.setValue("System Error"); break;
                     default: uiErrorFeed.setValue("Unknown Error"); break;
                 }
             }

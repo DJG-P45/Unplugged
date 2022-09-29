@@ -4,10 +4,11 @@
     <string name="title">Title</string>
     <string name="subtitle">Subtitle</string>
     <string name="details">Details</string>
-    <string name="search_area">Search Area</string>
+    <string name="search_area">Area</string>
     <string name="date">Date</string>
     <string name="schedule_previous">Previous</string>
     <string name="schedule_next">Next</string>
     <string name="area_name">Area Name</string>
     <string name="total_downtime">Total Downtime</string>
+    <string name="search">SEARCH</string>
 </resources>
