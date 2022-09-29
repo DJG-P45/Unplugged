@@ -62,19 +62,6 @@ public class LoadSheddingRepositoryTests {
     @Test
     public void loadSheddingRepository_getStatus_returnsStatus() {
 
-        MockedStatic<Schedulers> schedulers = Mockito.mockStatic(Schedulers.class);
-        MockedStatic<AndroidSchedulers> androidSchedulers = Mockito.mockStatic(AndroidSchedulers.class);
 
-        schedulers.when(Schedulers::newThread).thenReturn(new TestScheduler());
-        androidSchedulers.when(AndroidSchedulers::mainThread).thenReturn(new TestScheduler());
-
-        doAnswer((Answer<Void>) invocation -> {
-            Callback callback = invocation.getArgument(0);
-            callback.onResponse("{}");
-            return null;
-        }).when(loadSheddingApi).getStatus(any(Callback.class));
-
-        LiveData<StatusDto> status = repository.getStatus();
-        String s;
     }
 }

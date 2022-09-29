@@ -1,7 +1,9 @@
 package com.example.unplugged.data.dto;
 
+import com.example.unplugged.data.other.PrettyTime;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -36,7 +38,8 @@ public class StatusDto {
     }
 
     public String getElapsedTime() {
-        long timeSince = updated.until(ZonedDateTime.now(), ChronoUnit.HOURS);
-        return  ("Since " + timeSince + " hours ago");
+        long timeSince = updated.until(ZonedDateTime.now(), ChronoUnit.MINUTES);
+        Duration duration = Duration.ofMinutes(timeSince);
+        return  ("Since " + PrettyTime.beautify(duration) + " ago");
     }
 }

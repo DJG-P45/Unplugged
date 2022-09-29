@@ -3,7 +3,6 @@ package com.example.unplugged.repository;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.unplugged.data.datasource.Callback;
 import com.example.unplugged.data.datasource.LoadSheddingApi;
 import com.example.unplugged.data.datasource.ObservedAreaDao;
 import com.example.unplugged.data.dto.AreaDto;
@@ -15,12 +14,14 @@ import com.example.unplugged.data.dto.StageDto;
 import com.example.unplugged.data.dto.StatusDto;
 import com.example.unplugged.data.entity.ObservedAreaEntity;
 import com.example.unplugged.data.other.ErrorCategory;
+import com.example.unplugged.data.other.PrettyTime;
 import com.example.unplugged.ui.viewmodel.Consumable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,27 +73,16 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<StatusDto> getStatus() {
         MutableLiveData<StatusDto> mutableLiveData = new MutableLiveData<>();
 
-        Observable.create(emitter -> {
-            loadSheddingApi.getStatus(new Callback() {
-                @Override
-                public void onResponse(String json) {
+        loadSheddingApi.getStatus()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> {
                     try {
-                        StatusDto statusDto = mapper.readValue(json, StatusDto.class);
-                        emitter.onNext(statusDto);
+                        mutableLiveData.setValue(mapper.readValue(s, StatusDto.class));
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                        emitter.onError(e);
+                        processError(e);
                     }
-                }
-
-                @Override
-                public void onError(String error) {
-                    emitter.onError(new Exception());
-                }
-            });
-        }).subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(o -> mutableLiveData.setValue((StatusDto) o), this::processError);
+                }, this::processError);
 
         return mutableLiveData;
     }
@@ -101,26 +91,17 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<List<FoundAreaDto>> findAreas(String searchText) {
         MutableLiveData<List<FoundAreaDto>> mutableLiveData = new MutableLiveData<>();
 
-        Observable.create(emitter -> {
-            loadSheddingApi.findAreas(searchText, new Callback() {
-                @Override
-                public void onResponse(String json) {
+        loadSheddingApi.findAreas(searchText)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> {
                     try {
-                        FoundAreaDto[] foundAreaArray = mapper.readValue(json, FoundAreaDto[].class);
-                        emitter.onNext(Arrays.asList(foundAreaArray));
+                        FoundAreaDto[] foundAreaArray = mapper.readValue(s, FoundAreaDto[].class);
+                        mutableLiveData.setValue(Arrays.asList(foundAreaArray));
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        processError(e);
                     }
-                }
-
-                @Override
-                public void onError(String error) {
-                    emitter.onError(new Exception());
-                }
-            });
-        }).subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(o -> mutableLiveData.setValue((List<FoundAreaDto>) o), this::processError);
+                }, this::processError);
 
         return mutableLiveData;
     }
@@ -147,27 +128,18 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<AreaDto> getArea(String areaId) {
         MutableLiveData<AreaDto> mutableLiveData = new MutableLiveData<>();
 
-        Observable.create(emitter -> {
-            loadSheddingApi.getAreaInfo(areaId, new Callback() {
-                @Override
-                public void onResponse(String json) {
+        loadSheddingApi.getAreaInfo(areaId)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> {
                     try {
-                        AreaDto areaDto = mapper.readValue(json, AreaDto.class);
+                        AreaDto areaDto = mapper.readValue(s, AreaDto.class);
                         areaDto.setId(areaId);
-                        emitter.onNext(areaDto);
+                        mutableLiveData.setValue(areaDto);
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        processError(e);
                     }
-                }
-
-                @Override
-                public void onError(String error) {
-                    emitter.onError(new Exception());
-                }
-            });
-        }).subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(o -> mutableLiveData.setValue((AreaDto) o), this::processError);
+                }, this::processError);
 
         return mutableLiveData;
     }
@@ -198,6 +170,8 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
 
 
     private void processError(Throwable throwable) {
+        throwable.printStackTrace();
+
         if (throwable instanceof JsonProcessingException) {
             errorFeed.postValue(new Consumable<>(ErrorCategory.SYSTEM));
         }
@@ -214,16 +188,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
             totalTimeInMinutes += outageDto.getDurationInMinutes();
         }
 
-        int hours = totalTimeInMinutes / 60;
-        int minutes = totalTimeInMinutes % 60;
-
-        String result = "Downtime:";
-
-        if (hours > 1) result += " " + hours + " hours";
-        if (hours == 1) result += " " + hours + " hour";
-        if (minutes > 1) result += " " + minutes + " minutes";
-        if (minutes == 1) result += " " + minutes + " minute";
-
-        return   result;
+        Duration duration = Duration.ofMinutes(totalTimeInMinutes);
+        return   "Downtime: " + PrettyTime.beautify(duration);
     }
 }
