@@ -2,12 +2,16 @@ package com.example.unplugged.data.datasource;
 
 import android.app.Application;
 import com.android.volley.Request;
+import com.android.volley.Response;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class EskomSePushNetworkApi {
+import io.reactivex.rxjava3.core.Single;
+
+public class EskomSePushNetworkApi implements LoadSheddingApi {
 
     private static final int GET = Request.Method.GET;
     private static final String REQUEST_FAILED = "REQUEST_FAILED";
@@ -19,51 +23,52 @@ public class EskomSePushNetworkApi {
         requestManager = VolleyRequestManager.getInstance(application);
     }
 
-    public void getStatus(IApiCallback callback) {
-        final String URL = BASE_URL + "status";
+    @Override
+    public Single<String> getStatus() {
+        return Single.create(emitter -> {
+            Response.Listener<JSONObject> responseListener = response -> {
+                try {
+                    emitter.onSuccess(response.getJSONObject("status").getJSONObject("eskom").toString());
+                } catch (JSONException e) {
+                    emitter.onError(e);
+                }
+            };
 
-        ApiJsonObjectRequest request = new ApiJsonObjectRequest(GET, URL, null,
-                response -> {
-                    try {
-                        callback.onResponse(response.getJSONObject("status").getJSONObject("eskom").toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        callback.onError(API_ERROR);
-                    }
-                },
-                error -> callback.onError(REQUEST_FAILED)
-        );
-        request.setHeaders(getRequestHeaders());
-        requestManager.addToRequestQueue(request);
+            final String URL = BASE_URL + "status";
+            ApiJsonObjectRequest request = new ApiJsonObjectRequest(GET, URL, null, responseListener, emitter::onError);
+            request.setHeaders(getRequestHeaders());
+            requestManager.addToRequestQueue(request);
+        });
     }
 
-    public void getAreaInfo(String id, IApiCallback callback) {
-        final String URL = BASE_URL + "area?id=" + id;
+    @Override
+    public Single<String> getAreaInfo(String id) {
+        return Single.create(emitter -> {
+            Response.Listener<JSONObject> responseListener = response -> emitter.onSuccess(response.toString());
 
-        ApiJsonObjectRequest request = new ApiJsonObjectRequest(GET, URL, null,
-                response -> callback.onResponse(response.toString()),
-                error -> callback.onError(REQUEST_FAILED)
-        );
-        request.setHeaders(getRequestHeaders());
-        requestManager.addToRequestQueue(request);
+            final String URL = BASE_URL + "area?id=" + id;
+            ApiJsonObjectRequest request = new ApiJsonObjectRequest(GET, URL, null, responseListener, emitter::onError);
+            request.setHeaders(getRequestHeaders());
+            requestManager.addToRequestQueue(request);
+        });
     }
 
-    public void findAreas(String searchText, IApiCallback callback) {
-        final String URL = BASE_URL + "areas_search?text=" + searchText;
+    @Override
+    public Single<String> findAreas(String searchText) {
+        return Single.create(emitter -> {
+            Response.Listener<JSONObject> responseListener = response -> {
+                try {
+                    emitter.onSuccess(response.getJSONArray("areas").toString());
+                } catch (JSONException e) {
+                    emitter.onError(e);
+                }
+            };
 
-        ApiJsonObjectRequest request = new ApiJsonObjectRequest(GET, URL, null,
-                response -> {
-                    try {
-                        callback.onResponse(response.getJSONArray("areas").toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        callback.onError(API_ERROR);
-                    }
-                },
-                error -> callback.onError((REQUEST_FAILED)
-        ));
-        request.setHeaders(getRequestHeaders());
-        requestManager.addToRequestQueue(request);
+            final String URL = BASE_URL + "areas_search?text=" + searchText;
+            ApiJsonObjectRequest request = new ApiJsonObjectRequest(GET, URL, null, responseListener, emitter::onError);
+            request.setHeaders(getRequestHeaders());
+            requestManager.addToRequestQueue(request);
+        });
     }
 
     private HashMap<String, String> getRequestHeaders() {
