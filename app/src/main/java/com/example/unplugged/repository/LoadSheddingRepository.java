@@ -1,14 +1,11 @@
-package com.example.unplugged.data.repository;
-
-import android.app.Application;
+package com.example.unplugged.repository;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
-import com.example.unplugged.data.datasource.IApiCallback;
+import com.example.unplugged.data.datasource.Callback;
+import com.example.unplugged.data.datasource.LoadSheddingApi;
 import com.example.unplugged.data.datasource.ObservedAreaDao;
-import com.example.unplugged.data.datasource.UnpluggedDatabase;
 import com.example.unplugged.data.dto.AreaDto;
 import com.example.unplugged.data.dto.DayDto;
 import com.example.unplugged.data.dto.DayScheduleDto;
@@ -36,18 +33,17 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class LoadSheddingRepository implements ILoadSheddingRepository {
 
     private final ObservedAreaDao observedAreaDao;
-    private final EskomSePushNetworkApi eskomSePushNetworkApi;
+    private final LoadSheddingApi loadSheddingApi;
     private final ObjectMapper mapper;
     private final MutableLiveData<Consumable<ErrorCategory>> errorFeed;
 
-    public LoadSheddingRepository(Application application) {
-        this.eskomSePushNetworkApi = new EskomSePushNetworkApi(application);
-        UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
-        observedAreaDao = db.observedAreaDao();
-        mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        errorFeed = new MutableLiveData<>();
+    public LoadSheddingRepository(LoadSheddingApi loadSheddingApi, ObservedAreaDao observedAreaDao) {
+        this.loadSheddingApi = loadSheddingApi;
+        this.observedAreaDao = observedAreaDao;
+        this.mapper = new ObjectMapper();
+        this.mapper.registerModule(new JavaTimeModule());
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.errorFeed = new MutableLiveData<>();
     }
 
     @Override
@@ -77,7 +73,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         MutableLiveData<StatusDto> mutableLiveData = new MutableLiveData<>();
 
         Observable.create(emitter -> {
-            eskomSePushNetworkApi.getStatus(new IApiCallback() {
+            loadSheddingApi.getStatus(new Callback() {
                 @Override
                 public void onResponse(String json) {
                     try {
@@ -106,7 +102,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         MutableLiveData<List<FoundAreaDto>> mutableLiveData = new MutableLiveData<>();
 
         Observable.create(emitter -> {
-            eskomSePushNetworkApi.findAreas(searchText, new IApiCallback() {
+            loadSheddingApi.findAreas(searchText, new Callback() {
                 @Override
                 public void onResponse(String json) {
                     try {
@@ -152,7 +148,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         MutableLiveData<AreaDto> mutableLiveData = new MutableLiveData<>();
 
         Observable.create(emitter -> {
-            eskomSePushNetworkApi.getAreaInfo(areaId, new IApiCallback() {
+            loadSheddingApi.getAreaInfo(areaId, new Callback() {
                 @Override
                 public void onResponse(String json) {
                     try {

@@ -1,4 +1,4 @@
-package com.example.unplugged.data.repository;
+package com.example.unplugged.repository;
 
 import androidx.lifecycle.LiveData;
 

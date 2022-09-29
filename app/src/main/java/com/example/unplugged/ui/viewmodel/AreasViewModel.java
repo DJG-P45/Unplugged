@@ -6,10 +6,13 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
+import com.example.unplugged.data.datasource.PseudoEskomSePushNetworkApi;
+import com.example.unplugged.data.datasource.UnpluggedDatabase;
 import com.example.unplugged.data.dto.AreaDto;
 import com.example.unplugged.data.dto.StatusDto;
-import com.example.unplugged.data.repository.ILoadSheddingRepository;
-import com.example.unplugged.data.repository.LoadSheddingRepository;
+import com.example.unplugged.repository.ILoadSheddingRepository;
+import com.example.unplugged.repository.LoadSheddingRepository;
 import com.example.unplugged.ui.state.Area;
 import com.example.unplugged.ui.state.Status;
 
@@ -26,7 +29,8 @@ public class AreasViewModel extends BaseViewModel {
 
     public AreasViewModel(@NonNull Application application) {
         super(application);
-        repository = new LoadSheddingRepository(application);
+        UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
+        repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
         status = repository.getStatus();
         areas = repository.getObservedAreas();
         uiStatus = new MutableLiveData<>();

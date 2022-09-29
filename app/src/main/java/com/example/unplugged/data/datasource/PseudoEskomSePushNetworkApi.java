@@ -3,9 +3,9 @@ package com.example.unplugged.data.datasource;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PseudoEskomSePushNetworkApi {
+public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
 
-    public void getStatus(IApiCallback callback) {
+    public void getStatus(Callback callback) {
         try {
             JSONObject result = new JSONObject("{\n" +
                     "    \"status\": {\n" +
@@ -48,7 +48,7 @@ public class PseudoEskomSePushNetworkApi {
         }
     }
 
-    public void getAreaInfo(String id, IApiCallback callback) {
+    public void getAreaInfo(String id, Callback callback) {
         try {
             JSONObject result = new JSONObject("{\n" +
                     "    \"events\": [\n" +
@@ -278,7 +278,7 @@ public class PseudoEskomSePushNetworkApi {
         }
     }
 
-    public void findAreas(String searchText, IApiCallback callback) {
+    public void findAreas(String searchText, Callback callback) {
         try {
             JSONObject result = new JSONObject("{\n" +
                     "    \"areas\": [\n" +
