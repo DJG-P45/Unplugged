@@ -1,7 +1,6 @@
 package com.example.unplugged.data.datasource;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -40,7 +39,7 @@ public abstract class UnpluggedDatabase extends RoomDatabase {
             @Override
             public void onOpen (@NonNull SupportSQLiteDatabase db){
                 super.onOpen(db);
-                db.execSQL("DELETE FROM observed_area");
+                //db.execSQL("DELETE FROM observed_area");
             }
         };
     }

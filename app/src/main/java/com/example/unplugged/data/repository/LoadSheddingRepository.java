@@ -98,7 +98,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     }
 
     @Override
-    public LiveData<List<FoundAreaDto>> findAreas(String searchText) {
+    public LiveData<List<FoundAreaDto>> findAreas(final String searchText) {
         MutableLiveData<List<FoundAreaDto>> mutableLiveData = new MutableLiveData<>();
 
         loadSheddingApi.findAreas(searchText)
