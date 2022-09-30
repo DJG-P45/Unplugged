@@ -38,40 +38,31 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="5dp">
 
-                <ImageView
-                    android:id="@+id/imgSearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_search"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
                 <EditText
                     android:id="@+id/edtTxtAreaSearch"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
                     android:layout_marginEnd="5dp"
                     android:backgroundTint="@color/dark_blue"
                     android:hint="@string/search_area"
+                    android:textColor="@color/dark_gray"
                     android:textColorHint="@color/dark_gray"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/btnSearch"
-                    app:layout_constraintStart_toEndOf="@+id/imgSearch"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    android:textColor="@color/dark_gray"/>
+                    app:layout_constraintVertical_bias="0.0" />
 
-                <Button
+                <ImageButton
                     android:id="@+id/btnSearch"
-                    android:layout_width="72dp"
-                    android:layout_height="47dp"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="45dp"
+                    android:layout_height="match_parent"
                     android:background="@color/dark_blue"
-                    android:text="@string/search"
-                    android:textStyle="bold"
                     android:elevation="0dp"
+                    android:src="@drawable/ic_search"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.PseudoEskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.UnpluggedDatabase;
 import com.example.unplugged.data.dto.FoundAreaDto;
@@ -20,13 +21,19 @@ public class AddAreaViewModel extends BaseViewModel {
 
     private final ILoadSheddingRepository repository;
     private final MutableLiveData<List<FoundArea>> uiFoundAreas;
+    private final MutableLiveData<Boolean> uiAreaAdded;
 
     public AddAreaViewModel(@NonNull Application application) {
         super(application);
         UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
-        repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
+        repository = new LoadSheddingRepository(new EskomSePushNetworkApi(application), db.observedAreaDao());
         uiFoundAreas = new MutableLiveData<>();
+        uiAreaAdded = new MutableLiveData<>();
         initErrorFeed(repository.getErrorFeed());
+    }
+
+    public LiveData<Boolean> isAreaAdded() {
+        return uiAreaAdded;
     }
 
     public LiveData<List<FoundArea>> findAreas(String searchText) {
@@ -38,7 +45,7 @@ public class AddAreaViewModel extends BaseViewModel {
             for (FoundAreaDto foundAreaDto : foundAreaDtos) {
                 FoundArea uiFoundArea = new FoundArea();
                 uiFoundArea.setFoundAreaDto(foundAreaDto);
-                uiFoundArea.setObserveArea(() -> repository.observeArea(foundAreaDto.getId()));
+                uiFoundArea.setObserveArea(() -> repository.observeArea(foundAreaDto.getId(), onAreaPersisted()));
                 foundAreaList.add(uiFoundArea);
             }
 
@@ -46,5 +53,9 @@ public class AddAreaViewModel extends BaseViewModel {
         });
 
         return uiFoundAreas;
+    }
+
+    private Runnable onAreaPersisted() {
+        return () -> uiAreaAdded.setValue(true);
     }
 }

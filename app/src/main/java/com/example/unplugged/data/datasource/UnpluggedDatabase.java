@@ -23,7 +23,7 @@ public abstract class UnpluggedDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(
                             context.getApplicationContext(),
                             UnpluggedDatabase.class, "unplugged_database"
-                    ).fallbackToDestructiveMigration().addCallback(sRoomDatabaseCallback).build();
+                    ).fallbackToDestructiveMigration().addCallback(roomDatabaseCallback()).build();
                     // Wipes and rebuilds instead of migrating
                     // if no Migration object.
                     // Migration is not part of this practical.
@@ -35,12 +35,14 @@ public abstract class UnpluggedDatabase extends RoomDatabase {
 
     public abstract ObservedAreaDao observedAreaDao();
 
-    private static RoomDatabase.Callback sRoomDatabaseCallback =
-            new RoomDatabase.Callback(){
-                @Override
-                public void onOpen (@NonNull SupportSQLiteDatabase db){
-                    super.onOpen(db);
-                    //db.execSQL("DELETE FROM observed_area");
-                }
-            };
+    private static RoomDatabase.Callback roomDatabaseCallback(){
+        return new RoomDatabase.Callback(){
+            @Override
+            public void onOpen (@NonNull SupportSQLiteDatabase db){
+                super.onOpen(db);
+                db.execSQL("DELETE FROM observed_area");
+            }
+        };
+    }
+
 }

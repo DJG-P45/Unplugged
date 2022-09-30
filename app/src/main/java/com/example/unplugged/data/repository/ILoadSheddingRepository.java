@@ -20,7 +20,7 @@ public interface ILoadSheddingRepository {
 
     LiveData<List<FoundAreaDto>> findAreas(String searchText);
 
-    void observeArea(final String id);
+    void observeArea(final String id, Runnable onPersisted);
 
     void removeObservedArea(final String id);
 

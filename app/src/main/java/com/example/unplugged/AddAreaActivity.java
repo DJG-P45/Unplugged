@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.unplugged.ui.FoundAreasRecyclerAdapter;
@@ -34,7 +35,7 @@ public class AddAreaActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbarAddArea);
         RecyclerView recyclerFoundAreas = findViewById(R.id.recyclerFoundAreas);
         EditText edtTxtAreaSearch = findViewById(R.id.edtTxtAreaSearch);
-        Button btnSearch = findViewById(R.id.btnSearch);
+        ImageButton btnSearch = findViewById(R.id.btnSearch);
 
         // Enable toolbar
         setSupportActionBar(toolbar);
@@ -52,6 +53,14 @@ public class AddAreaActivity extends AppCompatActivity {
 
         // If user types in search text and presses btn query data layer for possible suggestions matching user input
         btnSearch.setOnClickListener(view -> addAreaViewModel.findAreas(edtTxtAreaSearch.getText().toString()).observe(AddAreaActivity.this, adapter::setFoundAreas));
+
+        // Listen for newly added area
+        addAreaViewModel.isAreaAdded().observe(this, added -> {
+            if (added) {
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

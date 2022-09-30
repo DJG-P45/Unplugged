@@ -40,11 +40,7 @@ public class FoundAreasRecyclerAdapter extends RecyclerView.Adapter <FoundAreasR
         FoundArea area = foundAreas.get(position);
         holder.title.setText(area.getTitle());
         holder.subtitle.setText(area.getSubtitle());
-        holder.card.setOnClickListener(view -> {
-            area.observeArea();
-            Intent intent = new Intent(context, MainActivity.class);
-            context.startActivity(intent);
-        });
+        holder.card.setOnClickListener(view -> area.observeArea());
     }
 
     @Override

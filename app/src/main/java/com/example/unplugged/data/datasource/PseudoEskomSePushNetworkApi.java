@@ -3,6 +3,8 @@ package com.example.unplugged.data.datasource;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 import io.reactivex.rxjava3.core.Single;
 
 public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
@@ -13,8 +15,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
     public Single<String> getStatus() {
         return Single.create(emitter -> {
             try {
-                count++;
-                System.out.println(count);
+                System.out.println("===> API <=== ");
                 JSONObject result = new JSONObject("{\n" +
                         "    \"status\": {\n" +
                         "        \"capetown\": {\n" +
@@ -57,11 +58,10 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
     }
 
     @Override
-    public Single<String> getAreaInfo(String id) {
+    public synchronized Single<String> getAreaInfo(String id) {
         return Single.create(emitter -> {
             try {
-                count++;
-                System.out.println(count);
+                System.out.println("===> API <=== ");
                 JSONObject result = new JSONObject("{\n" +
                         "    \"events\": [\n" +
                         "        {\n" +
@@ -292,11 +292,10 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
     }
 
     @Override
-    public synchronized Single<String> findAreas(String searchText) {
+    public Single<String> findAreas(String searchText) {
         return Single.create(emitter -> {
             try {
-                count++;
-                System.out.println(count);
+                System.out.println("===> API <=== ");
                 JSONObject result = new JSONObject("{\n" +
                         "    \"areas\": [\n" +
                         "        {\n" +

@@ -13,7 +13,7 @@ import java.util.List;
 public interface ObservedAreaDao {
 
         @Insert // If you use the provided convenience annotations, Room takes care of thread management for you.
-        void insert(ObservedAreaEntity observedArea);
+        Long insert(ObservedAreaEntity observedArea);
 
         @Query("DELETE FROM observed_area") // Not a convenience annotation, need to provide own thread management.
         void deleteAll();
@@ -22,8 +22,9 @@ public interface ObservedAreaDao {
         void delete(String id);
 
         @Query("SELECT * FROM observed_area") // Not a convenience annotation, need to provide own thread management.
-        LiveData<List<ObservedAreaEntity>> getAllObservedAreas(); // The use of LiveData pushes this onto it's own thread.
+        List<ObservedAreaEntity> getAllObservedAreas(); // The use of LiveData pushes this onto it's own thread.
 
         @Query("SELECT EXISTS(SELECT * FROM observed_area WHERE id = :id)") // Not a convenience annotation, need to provide own thread management.
         Boolean observedAreaExists(String id);
+
 }

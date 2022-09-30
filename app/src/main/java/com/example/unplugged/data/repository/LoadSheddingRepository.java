@@ -33,6 +33,7 @@ import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class LoadSheddingRepository implements ILoadSheddingRepository {
@@ -59,17 +60,20 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     }
 
     @Override
-    public void observeArea(final String id) {
-        Observable.create(emitter -> {
-            if (!observedAreaDao.observedAreaExists(id)) observedAreaDao.insert(new ObservedAreaEntity(id));
+    public void observeArea(final String id, Runnable onPersisted) {
+        Single.<Long>create(emitter -> {
+            if (!observedAreaDao.observedAreaExists(id)) {
+                emitter.onSuccess(observedAreaDao.insert(new ObservedAreaEntity(id)));
+            }
+            emitter.onSuccess(0L);
         }).subscribeOn(Schedulers.newThread())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe();
+        .subscribe(aLong -> onPersisted.run());
     }
 
     @Override
     public void removeObservedArea(final String id) {
-        Observable.create(emitter -> observedAreaDao.delete(id))
+        Single.create(emitter -> observedAreaDao.delete(id))
         .subscribeOn(sp.newThread())
         .observeOn(sp.mainThread())
         .subscribe();
@@ -114,13 +118,16 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
 
     @Override
     public LiveData<List<AreaDto>> getObservedAreas() {
-        MutableLiveData<List<AreaDto>> mutableLiveData = new MutableLiveData<>();
+        MutableLiveData<List<AreaDto>> mutableLiveData = new MutableLiveData<>(new ArrayList<>());
 
-        observedAreaDao.getAllObservedAreas().observeForever(observedAreas -> {
-            List<AreaDto> areas = new ArrayList<>();
-
-            for (ObservedAreaEntity entity : observedAreas) {
+        Single.<List<ObservedAreaEntity>>create(emitter -> {
+            emitter.onSuccess(observedAreaDao.getAllObservedAreas());
+        }).subscribeOn(sp.newThread())
+        .observeOn(sp.mainThread())
+        .subscribe(observedAreaEntities -> {
+            for (ObservedAreaEntity entity : observedAreaEntities) {
                 getArea(entity.getId()).observeForever(areaDto -> {
+                    List<AreaDto> areas = mutableLiveData.getValue();
                     areas.add(areaDto);
                     mutableLiveData.setValue(areas);
                 });

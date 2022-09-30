@@ -16,7 +16,6 @@ public class EskomSePushNetworkApi implements LoadSheddingApi {
     private static final int GET = Request.Method.GET;
     private static final String BASE_URL = "https://developer.sepush.co.za/business/2.0/"; //https://developer.sepush.co.za/business/2.0/
     private final VolleyRequestManager requestManager;
-    private static int count = 0;
 
     public EskomSePushNetworkApi(Application application) {
         requestManager = VolleyRequestManager.getInstance(application);
