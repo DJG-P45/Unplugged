@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarDashboard);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+        ProgressBar loadingBar = findViewById(R.id.dashboardLoadingBar);
 
         // Set up and display LoadShedding status
         txtStatusTitle = findViewById(R.id.txtDashboardTitle);
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getStatus().observe(this, uiStatus -> {
             txtStatusTitle.setText(uiStatus.getStage());
             txtStatusSubtitle.setText(uiStatus.getUpdated());
+            loadingBar.setVisibility(View.INVISIBLE);
         });
 
         // Set up and display observed areas

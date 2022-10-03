@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +44,7 @@ public class DailyScheduleActivity extends AppCompatActivity {
         btnNextDay = findViewById(R.id.btnScheduleNext);
         btnPreviousDay = findViewById(R.id.btnSchedulePrevious);
         scrollViewSchedule = findViewById(R.id.scrollViewDailySchedule);
+        ProgressBar loadingBar = findViewById(R.id.scheduleLoadingBar);
 
         // Enable toolbar
         setSupportActionBar(toolbar);
@@ -73,6 +76,8 @@ public class DailyScheduleActivity extends AppCompatActivity {
 
             btnNextDay.setOnClickListener(view -> daySchedule.loadNextDaySchedule());
             btnPreviousDay.setOnClickListener(view -> daySchedule.loadPreviousDaySchedule());
+
+            loadingBar.setVisibility(View.INVISIBLE);
         });
 
         // Display any possible error that might arise from the data layer

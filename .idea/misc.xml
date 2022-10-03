@@ -12,6 +12,7 @@
         <entry key="app/src/main/res/drawable/ic_unplugged.xml" value="0.2425" />
         <entry key="app/src/main/res/drawable/ic_warning.xml" value="0.219" />
         <entry key="app/src/main/res/layout/activity_add_area.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/activity_daily_schedule.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/activity_loadshedding_schedule.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/item_add_area.xml" value="0.30885416666666665" />

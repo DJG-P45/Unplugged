@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="@color/light_blue">
+    android:background="@color/light_blue"
+    tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -21,9 +21,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="150sp"
-                app:layout_collapseMode="parallax"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                app:layout_collapseMode="parallax">
 
                 <TextView
                     android:id="@+id/txtDashboardTitle"
@@ -32,7 +32,7 @@
                     android:text="@string/title"
                     android:textColor="@color/dark_gray"
                     android:textSize="40sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/txtDashboardSubtitle"
@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:menu="@menu/menu_dashboard"/>
+                app:menu="@menu/menu_dashboard" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
@@ -60,5 +60,19 @@
         android:layout_height="match_parent"
         android:paddingHorizontal="10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:id="@+id/dashboardLoadingBar"
+            android:layout_width="50sp"
+            android:layout_height="50sp"
+            android:indeterminateTint="@color/dark_gray"
+            android:layout_centerInParent="true"
+            android:visibility="visible"/>
+
+    </RelativeLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
