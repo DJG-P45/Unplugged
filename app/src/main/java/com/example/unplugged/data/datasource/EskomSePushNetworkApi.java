@@ -75,7 +75,7 @@ public class EskomSePushNetworkApi implements LoadSheddingApi {
 
     private HashMap<String, String> getRequestHeaders() {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("Token", "Q2ORxpAXTgkVRFV6UdJj");
+        headers.put("Token", "");
         return headers;
     }
 }
