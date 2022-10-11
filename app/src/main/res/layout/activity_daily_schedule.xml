@@ -30,20 +30,12 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbarSchedule">
 
         <TextView
-            android:id="@+id/txtScheduleDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/date"
-            android:textSize="30sp"
-            android:textStyle="bold" />
-
-        <TextView
             android:id="@+id/txtScheduleAreaName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/area_name"
             android:textSize="20sp"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="0dp"/>
 
         <TextView
             android:id="@+id/txtScheduleTotalDowntime"
@@ -56,43 +48,36 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="20dp">
 
             <ImageButton
                 android:id="@+id/btnSchedulePrevious"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/blue"
-                android:padding="10dp"
+                android:background="@android:color/transparent"
+                android:padding="5dp"
                 android:src="@drawable/ic_arrow_circle_left"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/txtSchedulePrevious"
+                android:id="@+id/txtScheduleDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/schedule_previous"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/btnSchedulePrevious"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/txtScheduleNext"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/schedule_next"
+                android:text="@string/date"
+                android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/btnScheduleNext"
+                app:layout_constraintStart_toEndOf="@+id/btnSchedulePrevious"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/btnScheduleNext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/blue"
-                android:padding="10dp"
+                android:background="@android:color/transparent"
+                android:padding="5dp"
                 android:src="@drawable/ic_arrow_circle_right"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -113,16 +98,23 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayoutSchedule" />
 
     <RelativeLayout
+        android:id="@+id/progressBarContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:background="@color/light_blue"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/scrollViewDailySchedule"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutSchedule">
 
         <ProgressBar
-            android:id="@+id/scheduleLoadingBar"
+            android:id="@+id/progressBar"
             android:layout_width="50sp"
             android:layout_height="50sp"
-            android:indeterminateTint="@color/dark_gray"
             android:layout_centerInParent="true"
-            android:visibility="visible"/>
+            android:indeterminateTint="@color/dark_gray"
+            android:visibility="visible" />
 
     </RelativeLayout>
 

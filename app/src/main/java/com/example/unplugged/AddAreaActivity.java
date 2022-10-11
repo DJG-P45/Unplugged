@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.unplugged.ui.FoundAreasRecyclerAdapter;
@@ -36,6 +37,7 @@ public class AddAreaActivity extends AppCompatActivity {
         RecyclerView recyclerFoundAreas = findViewById(R.id.recyclerFoundAreas);
         EditText edtTxtAreaSearch = findViewById(R.id.edtTxtAreaSearch);
         ImageButton btnSearch = findViewById(R.id.btnSearch);
+        RelativeLayout progressBarContainer = findViewById(R.id.progressBarContainer);
 
         // Enable toolbar
         setSupportActionBar(toolbar);
@@ -52,7 +54,13 @@ public class AddAreaActivity extends AppCompatActivity {
         });
 
         // If user types in search text and presses btn query data layer for possible suggestions matching user input
-        btnSearch.setOnClickListener(view -> addAreaViewModel.findAreas(edtTxtAreaSearch.getText().toString()).observe(AddAreaActivity.this, adapter::setFoundAreas));
+        btnSearch.setOnClickListener(view -> {
+            addAreaViewModel.findAreas(edtTxtAreaSearch.getText().toString()).observe(AddAreaActivity.this, foundAreas -> {
+                adapter.setFoundAreas(foundAreas);
+                progressBarContainer.setVisibility(View.INVISIBLE);
+            });
+            progressBarContainer.setVisibility(View.VISIBLE);
+        });
 
         // Listen for newly added area
         addAreaViewModel.isAreaAdded().observe(this, added -> {

@@ -14,6 +14,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
     @Override
     public Single<String> getStatus() {
         return Single.create(emitter -> {
+            Thread.sleep(2000);
             try {
                 System.out.println("===> API <=== ");
                 JSONObject result = new JSONObject("{\n" +
@@ -60,6 +61,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
     @Override
     public synchronized Single<String> getAreaInfo(String id) {
         return Single.create(emitter -> {
+            Thread.sleep(2000);
             try {
                 System.out.println("===> API <=== ");
                 JSONObject result = new JSONObject("{\n" +
@@ -294,6 +296,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
     @Override
     public Single<String> findAreas(String searchText) {
         return Single.create(emitter -> {
+            Thread.sleep(2000);
             try {
                 System.out.println("===> API <=== ");
                 JSONObject result = new JSONObject("{\n" +

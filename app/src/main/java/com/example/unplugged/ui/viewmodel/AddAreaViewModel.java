@@ -26,7 +26,7 @@ public class AddAreaViewModel extends BaseViewModel {
     public AddAreaViewModel(@NonNull Application application) {
         super(application);
         UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
-        repository = new LoadSheddingRepository(new EskomSePushNetworkApi(application), db.observedAreaDao());
+        repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
         uiFoundAreas = new MutableLiveData<>();
         uiAreaAdded = new MutableLiveData<>();
         initErrorFeed(repository.getErrorFeed());

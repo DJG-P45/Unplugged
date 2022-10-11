@@ -23,7 +23,7 @@ public class DayScheduleViewModel extends BaseViewModel {
     public DayScheduleViewModel(@NonNull Application application) {
         super(application);
         UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
-        repository = new LoadSheddingRepository(new EskomSePushNetworkApi(application), db.observedAreaDao());
+        repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
         initErrorFeed(repository.getErrorFeed());
     }
 

@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,26 +26,23 @@ public class DailyScheduleActivity extends AppCompatActivity {
 
     private TextView txtDate, txtAreaName, txtDownTime;
     private ImageButton btnNextDay, btnPreviousDay;
-    private Toolbar toolbar;
-    private ScrollView scrollViewSchedule;
-    private DayScheduleViewModel dayScheduleViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_schedule);
 
-        dayScheduleViewModel = new ViewModelProvider(this).get(DayScheduleViewModel.class);
+        DayScheduleViewModel dayScheduleViewModel = new ViewModelProvider(this).get(DayScheduleViewModel.class);
 
         // Retrieve ui views
-        toolbar = (Toolbar) findViewById(R.id.toolbarSchedule);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarSchedule);
         txtDate = findViewById(R.id.txtScheduleDate);
         txtAreaName = findViewById(R.id.txtScheduleAreaName);
         txtDownTime = findViewById(R.id.txtScheduleTotalDowntime);
         btnNextDay = findViewById(R.id.btnScheduleNext);
         btnPreviousDay = findViewById(R.id.btnSchedulePrevious);
-        scrollViewSchedule = findViewById(R.id.scrollViewDailySchedule);
-        ProgressBar loadingBar = findViewById(R.id.scheduleLoadingBar);
+        ScrollView scrollViewSchedule = findViewById(R.id.scrollViewDailySchedule);
+        RelativeLayout progressBarContainer = findViewById(R.id.progressBarContainer);
 
         // Enable toolbar
         setSupportActionBar(toolbar);
@@ -74,10 +72,17 @@ public class DailyScheduleActivity extends AppCompatActivity {
             txtAreaName.setText(daySchedule.getSchedule().getAreaName());
             txtDownTime.setText(daySchedule.getSchedule().getDowntime());
 
-            btnNextDay.setOnClickListener(view -> daySchedule.loadNextDaySchedule());
-            btnPreviousDay.setOnClickListener(view -> daySchedule.loadPreviousDaySchedule());
+            btnNextDay.setOnClickListener(view -> {
+                progressBarContainer.setVisibility(View.VISIBLE);
+                daySchedule.loadNextDaySchedule();
+            });
 
-            loadingBar.setVisibility(View.INVISIBLE);
+            btnPreviousDay.setOnClickListener(view -> {
+                progressBarContainer.setVisibility(View.VISIBLE);
+                daySchedule.loadPreviousDaySchedule();
+            });
+
+            progressBarContainer.setVisibility(View.INVISIBLE);
         });
 
         // Display any possible error that might arise from the data layer

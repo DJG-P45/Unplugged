@@ -30,7 +30,7 @@ public class AreasViewModel extends BaseViewModel {
     public AreasViewModel(@NonNull Application application) {
         super(application);
         UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
-        repository = new LoadSheddingRepository(new EskomSePushNetworkApi(application), db.observedAreaDao());
+        repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
         status = repository.getStatus();
         areas = repository.getObservedAreas();
         uiStatus = new MutableLiveData<>();
