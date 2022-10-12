@@ -1,5 +1,6 @@
 package com.example.unplugged.data.repository;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -30,11 +31,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Consumer;
 
 public class LoadSheddingRepository implements ILoadSheddingRepository {
 
@@ -61,14 +60,12 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
 
     @Override
     public void observeArea(final String id, Runnable onPersisted) {
-        Single.<Long>create(emitter -> {
+        doAsync(Single.create(emitter -> {
             if (!observedAreaDao.observedAreaExists(id)) {
                 emitter.onSuccess(observedAreaDao.insert(new ObservedAreaEntity(id)));
             }
             emitter.onSuccess(0L);
-        }).subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(aLong -> onPersisted.run());
+        }), aLong -> onPersisted.run(), throwable -> {});
     }
 
     @Override
@@ -83,16 +80,13 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<StatusDto> getStatus() {
         MutableLiveData<StatusDto> mutableLiveData = new MutableLiveData<>();
 
-        loadSheddingApi.getStatus()
-                .subscribeOn(sp.newThread())
-                .observeOn(sp.mainThread())
-                .subscribe(s -> {
-                    try {
-                        mutableLiveData.setValue(mapper.readValue(s, StatusDto.class));
-                    } catch (JsonProcessingException e) {
-                        processError(e);
-                    }
-                }, this::processError);
+        doAsync(loadSheddingApi.getStatus(), s -> {
+            try {
+                mutableLiveData.setValue(mapper.readValue(s, StatusDto.class));
+            } catch (JsonProcessingException e) {
+                processError(e);
+            }
+        }, this::processError);
 
         return mutableLiveData;
     }
@@ -101,17 +95,14 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<List<FoundAreaDto>> findAreas(final String searchText) {
         MutableLiveData<List<FoundAreaDto>> mutableLiveData = new MutableLiveData<>();
 
-        loadSheddingApi.findAreas(searchText)
-                .subscribeOn(sp.newThread())
-                .observeOn(sp.mainThread())
-                .subscribe(s -> {
-                    try {
-                        FoundAreaDto[] foundAreaArray = mapper.readValue(s, FoundAreaDto[].class);
-                        mutableLiveData.setValue(Arrays.asList(foundAreaArray));
-                    } catch (JsonProcessingException e) {
-                        processError(e);
-                    }
-                }, this::processError);
+        doAsync(loadSheddingApi.findAreas(searchText), s -> {
+            try {
+                FoundAreaDto[] foundAreaArray = mapper.readValue(s, FoundAreaDto[].class);
+                mutableLiveData.setValue(Arrays.asList(foundAreaArray));
+            } catch (JsonProcessingException e) {
+                processError(e);
+            }
+        }, this::processError);
 
         return mutableLiveData;
     }
@@ -120,11 +111,11 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<List<AreaDto>> getObservedAreas() {
         MutableLiveData<List<AreaDto>> mutableLiveData = new MutableLiveData<>(new ArrayList<>());
 
-        Single.<List<ObservedAreaEntity>>create(emitter -> {
+        Single<List<ObservedAreaEntity>> observedAreasSingle = Single.create(emitter -> {
             emitter.onSuccess(observedAreaDao.getAllObservedAreas());
-        }).subscribeOn(sp.newThread())
-        .observeOn(sp.mainThread())
-        .subscribe(observedAreaEntities -> {
+        });
+
+        doAsync(observedAreasSingle, observedAreaEntities -> {
             for (ObservedAreaEntity entity : observedAreaEntities) {
                 getArea(entity.getId()).observeForever(areaDto -> {
                     List<AreaDto> areas = mutableLiveData.getValue();
@@ -132,7 +123,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
                     mutableLiveData.setValue(areas);
                 });
             }
-        });
+        }, this::processError);
 
         return mutableLiveData;
     }
@@ -141,18 +132,15 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<AreaDto> getArea(String areaId) {
         MutableLiveData<AreaDto> mutableLiveData = new MutableLiveData<>();
 
-        loadSheddingApi.getAreaInfo(areaId)
-                .subscribeOn(sp.newThread())
-                .observeOn(sp.mainThread())
-                .subscribe(s -> {
-                    try {
-                        AreaDto areaDto = mapper.readValue(s, AreaDto.class);
-                        areaDto.setId(areaId);
-                        mutableLiveData.setValue(areaDto);
-                    } catch (JsonProcessingException e) {
-                        processError(e);
-                    }
-                }, this::processError);
+        doAsync(loadSheddingApi.getAreaInfo(areaId), s -> {
+            try {
+                AreaDto areaDto = mapper.readValue(s, AreaDto.class);
+                areaDto.setId(areaId);
+                mutableLiveData.setValue(areaDto);
+            } catch (JsonProcessingException e) {
+                processError(e);
+            }
+        }, this::processError);
 
         return mutableLiveData;
     }
@@ -161,26 +149,35 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     public LiveData<DayScheduleDto> getDaySchedule(final String areaId, LocalDate date) {
         MutableLiveData<DayScheduleDto> mutableLiveData = new MutableLiveData<>();
 
-        getStatus().observeForever(statusDto -> getArea(areaId).observeForever(areaDto -> {
-            DayScheduleDto schedule = new DayScheduleDto();
-            schedule.setAreaName(areaDto.getInfo().getName());
-            schedule.setDate(date.getDayOfMonth() + " " + date.getMonth().name());
-            schedule.setDowntime("No downtime");
-            schedule.setOutages(new ArrayList<>());
+        doAsync(
+            Single.zip(loadSheddingApi.getStatus(), loadSheddingApi.getAreaInfo(areaId), (status, areaInfo) -> {
+                StatusDto statusDto = mapper.readValue(status, StatusDto.class);
+                AreaDto areaDto = mapper.readValue(areaInfo, AreaDto.class);
 
-            for (DayDto dayDto : areaDto.getSchedule().getDays()) {
-                if (dayDto.getDate().isEqual(date)) {
-                    StageDto stageDto = dayDto.getStages().get(statusDto.getStage());
-                    schedule.setOutages(stageDto.getOutages());
-                    schedule.setDowntime(totalDowntime(stageDto.getOutages()));
+                DayScheduleDto schedule = new DayScheduleDto();
+                schedule.setAreaName(areaDto.getInfo().getName());
+                schedule.setDate(date.getDayOfMonth() + " " + date.getMonth().name());
+                schedule.setDowntime("No downtime");
+                schedule.setOutages(new ArrayList<>());
+
+                for (DayDto dayDto : areaDto.getSchedule().getDays()) {
+                    if (dayDto.getDate().isEqual(date)) {
+                        StageDto stageDto = dayDto.getStages().get(statusDto.getStage());
+                        schedule.setOutages(stageDto.getOutages());
+                        schedule.setDowntime(totalDowntime(stageDto.getOutages()));
+                    }
                 }
-            }
-            mutableLiveData.postValue(schedule);
-        }));
+                return schedule;
+        }), mutableLiveData::postValue, this::processError);
 
         return  mutableLiveData;
     }
 
+    private <T> Disposable doAsync(@NonNull Single<T> single, @NonNull Consumer<? super T> onSuccess, @NonNull Consumer<? super Throwable > onError) {
+        return single.subscribeOn(sp.newThread())
+                .observeOn(sp.mainThread())
+                .subscribe(onSuccess, onError);
+    }
 
     private void processError(Throwable throwable) {
         throwable.printStackTrace();
