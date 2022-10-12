@@ -15,19 +15,15 @@ public abstract class UnpluggedDatabase extends RoomDatabase {
 
     private static UnpluggedDatabase INSTANCE;
 
-    public static UnpluggedDatabase getDatabase(final Context context) {
+    public static synchronized UnpluggedDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
-            synchronized (UnpluggedDatabase.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(
-                            context.getApplicationContext(),
-                            UnpluggedDatabase.class, "unplugged_database"
-                    ).fallbackToDestructiveMigration().addCallback(roomDatabaseCallback()).build();
-                    // Wipes and rebuilds instead of migrating
-                    // if no Migration object.
-                    // Migration is not part of this practical.
-                }
-            }
+            INSTANCE = Room.databaseBuilder(
+                    context.getApplicationContext(),
+                    UnpluggedDatabase.class, "unplugged_database"
+            ).fallbackToDestructiveMigration().addCallback(roomDatabaseCallback()).build();
+            // Wipes and rebuilds instead of migrating
+            // if no Migration object.
+            // Migration is not part of this practical.
         }
         return INSTANCE;
     }

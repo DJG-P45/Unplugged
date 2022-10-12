@@ -14,11 +14,13 @@ import io.reactivex.rxjava3.core.Single;
 public class EskomSePushNetworkApi implements LoadSheddingApi {
 
     private static final int GET = Request.Method.GET;
-    private static final String BASE_URL = "https://developer.sepush.co.za/business/2.0/"; //https://developer.sepush.co.za/business/2.0/
+    private static final String BASE_URL = "https://developer.sepush.co.za/business/2.0/";
     private final VolleyRequestManager requestManager;
+    private final String API_KEY;
 
-    public EskomSePushNetworkApi(Application application) {
+    public EskomSePushNetworkApi(Application application, String apiKey) {
         requestManager = VolleyRequestManager.getInstance(application);
+        this.API_KEY = apiKey;
     }
 
     @Override
@@ -35,9 +37,7 @@ public class EskomSePushNetworkApi implements LoadSheddingApi {
             Response.ErrorListener errorListener = error -> emitter.onError(new ApiNetworkException());
 
             final String URL = BASE_URL + "status";
-            ApiJsonObjectRequest request = new ApiJsonObjectRequest(GET, URL, null, responseListener, errorListener);
-            request.setHeaders(getRequestHeaders());
-            requestManager.addToRequestQueue(request);
+            sendRequest(GET, URL, null, responseListener, errorListener);
         });
     }
 
@@ -46,10 +46,9 @@ public class EskomSePushNetworkApi implements LoadSheddingApi {
         return Single.create(emitter -> {
             Response.Listener<JSONObject> responseListener = response -> emitter.onSuccess(response.toString());
             Response.ErrorListener errorListener = error -> emitter.onError(new ApiNetworkException());
+
             final String URL = BASE_URL + "area?id=" + id;
-            ApiJsonObjectRequest request = new ApiJsonObjectRequest(GET, URL, null, responseListener, errorListener);
-            request.setHeaders(getRequestHeaders());
-            requestManager.addToRequestQueue(request);
+            sendRequest(GET, URL, null, responseListener, errorListener);
         });
     }
 
@@ -67,15 +66,19 @@ public class EskomSePushNetworkApi implements LoadSheddingApi {
             Response.ErrorListener errorListener = error -> emitter.onError(new ApiNetworkException());
 
             final String URL = BASE_URL + "areas_search?text=" + searchText;
-            ApiJsonObjectRequest request = new ApiJsonObjectRequest(GET, URL, null, responseListener, errorListener);
-            request.setHeaders(getRequestHeaders());
-            requestManager.addToRequestQueue(request);
+            sendRequest(GET, URL, null, responseListener, errorListener);
         });
     }
 
-    private HashMap<String, String> getRequestHeaders() {
+    private synchronized void sendRequest(int method, String url, JSONObject jsonRequest, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
+        ApiJsonObjectRequest request = new ApiJsonObjectRequest(method, url, jsonRequest, listener, errorListener);
+        request.setHeaders(getRequestHeaders());
+        requestManager.addToRequestQueue(request);
+    }
+
+    private synchronized HashMap<String, String> getRequestHeaders() {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("Token", "");
+        headers.put("Token", API_KEY);
         return headers;
     }
 }

@@ -79,7 +79,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "    \"schedule\": {\n" +
                         "        \"days\": [\n" +
                         "            {\n" +
-                        "                \"date\": \"2022-09-22\",\n" +
+                        "                \"date\": \"2022-10-11\",\n" +
                         "                \"name\": \"Monday\",\n" +
                         "                \"stages\": [\n" +
                         "                    [],\n" +
@@ -118,7 +118,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "                ]\n" +
                         "            },\n" +
                         "            {\n" +
-                        "                \"date\": \"2022-09-23\",\n" +
+                        "                \"date\": \"2022-10-12\",\n" +
                         "                \"name\": \"Tuesday\",\n" +
                         "                \"stages\": [\n" +
                         "                    [\n" +
@@ -159,7 +159,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "                ]\n" +
                         "            },\n" +
                         "            {\n" +
-                        "                \"date\": \"2022-09-24\",\n" +
+                        "                \"date\": \"2022-10-13\",\n" +
                         "                \"name\": \"Wednesday\",\n" +
                         "                \"stages\": [\n" +
                         "                    [\n" +
@@ -201,7 +201,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "                ]\n" +
                         "            },\n" +
                         "            {\n" +
-                        "                \"date\": \"2022-09-25\",\n" +
+                        "                \"date\": \"2022-10-14\",\n" +
                         "                \"name\": \"Thursday\",\n" +
                         "                \"stages\": [\n" +
                         "                    [\n" +
@@ -244,7 +244,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "                ]\n" +
                         "            },\n" +
                         "            {\n" +
-                        "                \"date\": \"2022-09-26\",\n" +
+                        "                \"date\": \"2022-10-15\",\n" +
                         "                \"name\": \"Friday\",\n" +
                         "                \"stages\": [\n" +
                         "                    [],\n" +

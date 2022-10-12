@@ -36,7 +36,11 @@ public class AddAreaViewModel extends BaseViewModel {
         return uiAreaAdded;
     }
 
-    public LiveData<List<FoundArea>> findAreas(String searchText) {
+    public LiveData<List<FoundArea>> getFoundAreas() {
+        return uiFoundAreas;
+    }
+
+    public void findAreas(String searchText) {
         LiveData<List<FoundAreaDto>> foundAreas = repository.findAreas(searchText);
 
         foundAreas.observeForever(foundAreaDtos -> {
@@ -51,8 +55,6 @@ public class AddAreaViewModel extends BaseViewModel {
 
             this.uiFoundAreas.setValue(foundAreaList);
         });
-
-        return uiFoundAreas;
     }
 
     private Runnable onAreaPersisted() {

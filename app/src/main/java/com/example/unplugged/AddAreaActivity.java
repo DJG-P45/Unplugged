@@ -53,12 +53,15 @@ public class AddAreaActivity extends AppCompatActivity {
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         });
 
+        // When areas are found give them to the recycler view adapter
+        addAreaViewModel.getFoundAreas().observe(AddAreaActivity.this, foundAreas -> {
+            adapter.setFoundAreas(foundAreas);
+            progressBarContainer.setVisibility(View.INVISIBLE);
+        });
+
         // If user types in search text and presses btn query data layer for possible suggestions matching user input
         btnSearch.setOnClickListener(view -> {
-            addAreaViewModel.findAreas(edtTxtAreaSearch.getText().toString()).observe(AddAreaActivity.this, foundAreas -> {
-                adapter.setFoundAreas(foundAreas);
-                progressBarContainer.setVisibility(View.INVISIBLE);
-            });
+            addAreaViewModel.findAreas(edtTxtAreaSearch.getText().toString());
             progressBarContainer.setVisibility(View.VISIBLE);
         });
 
