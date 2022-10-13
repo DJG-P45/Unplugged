@@ -1,11 +1,7 @@
 package com.example.unplugged.data.repository;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
-import com.example.unplugged.data.datasource.ApiException;
-import com.example.unplugged.data.datasource.ApiNetworkException;
 import com.example.unplugged.data.datasource.LoadSheddingApi;
 import com.example.unplugged.data.datasource.ObservedAreaDao;
 import com.example.unplugged.data.dto.AreaDto;
@@ -20,7 +16,6 @@ import com.example.unplugged.data.other.ErrorCategory;
 import com.example.unplugged.data.other.PrettyTime;
 import com.example.unplugged.data.other.ScheduleProviderFactory;
 import com.example.unplugged.data.other.SchedulerProvider;
-import com.example.unplugged.ui.viewmodel.Consumable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +26,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Consumer;
@@ -40,7 +37,6 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     private final ObservedAreaDao observedAreaDao;
     private final LoadSheddingApi loadSheddingApi;
     private final ObjectMapper mapper;
-    private final MutableLiveData<Consumable<ErrorCategory>> errorFeed;
     private final SchedulerProvider sp;
 
     public LoadSheddingRepository(LoadSheddingApi loadSheddingApi, ObservedAreaDao observedAreaDao) {
@@ -49,13 +45,7 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
         this.mapper = new ObjectMapper();
         this.mapper.registerModule(new JavaTimeModule());
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.errorFeed = new MutableLiveData<>();
         this.sp = ScheduleProviderFactory.getScheduleProvider();
-    }
-
-    @Override
-    public LiveData<Consumable<ErrorCategory>> getErrorFeed() {
-        return errorFeed;
     }
 
     @Override
@@ -77,82 +67,50 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
     }
 
     @Override
-    public LiveData<StatusDto> getStatus() {
-        MutableLiveData<StatusDto> mutableLiveData = new MutableLiveData<>();
-
+    public void getStatus(ICallback<StatusDto> successCallback, ICallback<ErrorCategory> errorCallback) {
         doAsync(loadSheddingApi.getStatus(), s -> {
             try {
-                mutableLiveData.setValue(mapper.readValue(s, StatusDto.class));
+                successCallback.accept(mapper.readValue(s, StatusDto.class));
             } catch (JsonProcessingException e) {
-                processError(e);
+                errorCallback.accept(ErrorCategory.FAILED_TO_FETCH_STATUS);
             }
-        }, this::processError);
-
-        return mutableLiveData;
+        }, throwable -> errorCallback.accept(ErrorCategory.FAILED_TO_FETCH_STATUS));
     }
 
     @Override
-    public LiveData<List<FoundAreaDto>> findAreas(final String searchText) {
-        MutableLiveData<List<FoundAreaDto>> mutableLiveData = new MutableLiveData<>();
-
+    public void findAreas(String searchText, ICallback<List<FoundAreaDto>> successCallback, ICallback<ErrorCategory> errorCallback) {
         doAsync(loadSheddingApi.findAreas(searchText), s -> {
             try {
                 FoundAreaDto[] foundAreaArray = mapper.readValue(s, FoundAreaDto[].class);
-                mutableLiveData.setValue(Arrays.asList(foundAreaArray));
+                successCallback.accept(Arrays.asList(foundAreaArray));
             } catch (JsonProcessingException e) {
-                processError(e);
+                errorCallback.accept(ErrorCategory.FAILED_TO_FETCH_AREAS);
             }
-        }, this::processError);
-
-        return mutableLiveData;
+        }, throwable -> errorCallback.accept(ErrorCategory.FAILED_TO_FETCH_AREAS));
     }
 
     @Override
-    public LiveData<List<AreaDto>> getObservedAreas() {
-        MutableLiveData<List<AreaDto>> mutableLiveData = new MutableLiveData<>(new ArrayList<>());
-
-        Single<List<ObservedAreaEntity>> observedAreasSingle = Single.create(emitter -> {
-            emitter.onSuccess(observedAreaDao.getAllObservedAreas());
+    public void getObservedAreas(ICallback<AreaDto> successCallback, ICallback<ErrorCategory> errorCallback) {
+        Observable<ObservedAreaEntity> listObservable = Observable.create(emitter -> {
+            List<ObservedAreaEntity> list = observedAreaDao.getAllObservedAreas();
+            list.forEach(emitter::onNext);
+            emitter.onComplete();
         });
 
-        doAsync(observedAreasSingle, observedAreaEntities -> {
-            for (ObservedAreaEntity entity : observedAreaEntities) {
-                getArea(entity.getId()).observeForever(areaDto -> {
-                    List<AreaDto> areas = mutableLiveData.getValue();
-                    areas.add(areaDto);
-                    mutableLiveData.setValue(areas);
-                });
-            }
-        }, this::processError);
-
-        return mutableLiveData;
+        listObservable.flatMap(areaEntity -> loadSheddingApi.getAreaInfo(areaEntity.getId()).toObservable())
+                .subscribeOn(sp.newThread())
+                .observeOn(sp.mainThread())
+                .subscribe(s -> {successCallback.accept(mapper.readValue(s, AreaDto.class));
+        }, throwable -> errorCallback.accept(ErrorCategory.FAILED_TO_FETCH_AREAS));
     }
 
     @Override
-    public LiveData<AreaDto> getArea(String areaId) {
-        MutableLiveData<AreaDto> mutableLiveData = new MutableLiveData<>();
-
-        doAsync(loadSheddingApi.getAreaInfo(areaId), s -> {
-            try {
-                AreaDto areaDto = mapper.readValue(s, AreaDto.class);
-                areaDto.setId(areaId);
-                mutableLiveData.setValue(areaDto);
-            } catch (JsonProcessingException e) {
-                processError(e);
-            }
-        }, this::processError);
-
-        return mutableLiveData;
-    }
-
-    @Override
-    public LiveData<DayScheduleDto> getDaySchedule(final String areaId, LocalDate date) {
-        MutableLiveData<DayScheduleDto> mutableLiveData = new MutableLiveData<>();
-
+    public void getDaySchedule(final String areaId, LocalDate date, ICallback<DayScheduleDto> successCallback, ICallback<ErrorCategory> errorCallback) {
         doAsync(
             Single.zip(loadSheddingApi.getStatus(), loadSheddingApi.getAreaInfo(areaId), (status, areaInfo) -> {
                 StatusDto statusDto = mapper.readValue(status, StatusDto.class);
                 AreaDto areaDto = mapper.readValue(areaInfo, AreaDto.class);
+                areaDto.setId(areaId);
 
                 DayScheduleDto schedule = new DayScheduleDto();
                 schedule.setAreaName(areaDto.getInfo().getName());
@@ -168,31 +126,13 @@ public class LoadSheddingRepository implements ILoadSheddingRepository {
                     }
                 }
                 return schedule;
-        }), mutableLiveData::postValue, this::processError);
-
-        return  mutableLiveData;
+        }).doOnError(throwable -> errorCallback.accept(ErrorCategory.FAILED_TO_FETCH_SCHEDULE)), successCallback::accept, throwable -> errorCallback.accept(ErrorCategory.FAILED_TO_FETCH_SCHEDULE));
     }
 
     private <T> Disposable doAsync(@NonNull Single<T> single, @NonNull Consumer<? super T> onSuccess, @NonNull Consumer<? super Throwable > onError) {
         return single.subscribeOn(sp.newThread())
                 .observeOn(sp.mainThread())
                 .subscribe(onSuccess, onError);
-    }
-
-    private void processError(Throwable throwable) {
-        throwable.printStackTrace();
-
-        ErrorCategory errorCategory = ErrorCategory.UNKNOWN;
-
-        if (throwable instanceof ApiException) {
-            errorCategory = ErrorCategory.SERVICE;
-        } else if (throwable instanceof ApiNetworkException) {
-            errorCategory = ErrorCategory.NETWORK;
-        } else if (throwable instanceof JsonProcessingException) {
-            errorCategory = ErrorCategory.SERVICE;
-        }
-
-        errorFeed.postValue(new Consumable<>(errorCategory));
     }
 
     private static String totalDowntime(List<OutageDto> outages) {

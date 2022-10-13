@@ -8,33 +8,37 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.unplugged.data.other.ErrorCategory;
+import com.example.unplugged.data.repository.ICallback;
 
 public abstract class BaseViewModel extends AndroidViewModel {
 
-    private LiveData<Consumable<ErrorCategory>> errorFeed;
     private MutableLiveData<String> uiErrorFeed;
 
     public BaseViewModel(@NonNull Application application) {
         super(application);
-        errorFeed = new MutableLiveData<>();
     }
 
     protected void initErrorFeed(LiveData<Consumable<ErrorCategory>> errorFeed) {
-        this.errorFeed = errorFeed;
+        //TODO Remove this method
     }
 
     public LiveData<String> getUiErrorFeed() {
         uiErrorFeed = new MutableLiveData<>();
-        errorFeed.observeForever(consumable -> {
-            if (consumable.notConsumed()) {
-                switch (consumable.consume()) {
-                    case NETWORK: uiErrorFeed.setValue("Network Error"); break;
-                    case SERVICE: uiErrorFeed.setValue("System Error"); break;
-                    default: uiErrorFeed.setValue("Unknown Error"); break;
-                }
-            }
-        });
-
         return uiErrorFeed;
+    }
+
+    protected ICallback<ErrorCategory> errorCallback() {
+        return errorCategory -> {
+            //uiErrorFeed = new MutableLiveData<>();
+            switch (errorCategory) {
+                case NETWORK: uiErrorFeed.setValue("Network Error"); break;
+                case SERVICE: uiErrorFeed.setValue("System Error"); break;
+                case FAILED_TO_FETCH_AREA: uiErrorFeed.setValue("Could not fetch area"); break;
+                case FAILED_TO_FETCH_AREAS: uiErrorFeed.setValue("Could not fetch areas"); break;
+                case FAILED_TO_FETCH_STATUS: uiErrorFeed.setValue("Could not fetch status"); break;
+                case FAILED_TO_FETCH_SCHEDULE: uiErrorFeed.setValue("Could not fetch schedule"); break;
+                default: uiErrorFeed.setValue("Unknown Error"); break;
+            }
+        };
     }
 }

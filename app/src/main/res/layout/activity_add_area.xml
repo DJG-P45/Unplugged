@@ -14,7 +14,8 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingBottom="10dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbarAddArea"
@@ -28,8 +29,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:elevation="0dp"
+            app:cardElevation="0dp"
             app:cardBackgroundColor="@color/light_blue"
-            app:cardCornerRadius="10dp">
+            app:cardCornerRadius="5dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

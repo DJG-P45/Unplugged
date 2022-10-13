@@ -10,6 +10,7 @@ import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.PseudoEskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.UnpluggedDatabase;
 import com.example.unplugged.data.dto.FoundAreaDto;
+import com.example.unplugged.data.repository.ICallback;
 import com.example.unplugged.data.repository.ILoadSheddingRepository;
 import com.example.unplugged.data.repository.LoadSheddingRepository;
 import com.example.unplugged.ui.state.FoundArea;
@@ -26,10 +27,9 @@ public class AddAreaViewModel extends BaseViewModel {
     public AddAreaViewModel(@NonNull Application application) {
         super(application);
         UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
-        repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
         uiFoundAreas = new MutableLiveData<>();
         uiAreaAdded = new MutableLiveData<>();
-        initErrorFeed(repository.getErrorFeed());
+        repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
     }
 
     public LiveData<Boolean> isAreaAdded() {
@@ -41,9 +41,11 @@ public class AddAreaViewModel extends BaseViewModel {
     }
 
     public void findAreas(String searchText) {
-        LiveData<List<FoundAreaDto>> foundAreas = repository.findAreas(searchText);
+        repository.findAreas(searchText, foundAreasCallback(), errorCallback());
+    }
 
-        foundAreas.observeForever(foundAreaDtos -> {
+    private ICallback<List<FoundAreaDto>> foundAreasCallback() {
+        return foundAreaDtos -> {
             List<FoundArea> foundAreaList = new ArrayList<>();
 
             for (FoundAreaDto foundAreaDto : foundAreaDtos) {
@@ -54,7 +56,7 @@ public class AddAreaViewModel extends BaseViewModel {
             }
 
             this.uiFoundAreas.setValue(foundAreaList);
-        });
+        };
     }
 
     private Runnable onAreaPersisted() {

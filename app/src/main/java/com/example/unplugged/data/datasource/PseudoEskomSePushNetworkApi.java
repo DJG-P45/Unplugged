@@ -51,7 +51,11 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "        }\n" +
                         "    }\n" +
                         "}");
-                emitter.onSuccess(result.getJSONObject("status").getJSONObject("eskom").toString());
+                if (count > 1) {
+                    emitter.onError(new ApiException());
+                } else {
+                    emitter.onSuccess(result.getJSONObject("status").getJSONObject("eskom").toString());
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -286,7 +290,12 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "        \"source\": \"https://loadshedding.eskom.co.za/\"\n" +
                         "    }\n" +
                         "}");
-                emitter.onSuccess(result.toString());
+
+                if (count > 1) {
+                    emitter.onError(new ApiException());
+                } else {
+                    emitter.onSuccess(result.toString());
+                }
             } catch (JSONException e) {
                 emitter.onError(e);
             }
@@ -374,6 +383,7 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "    ]\n" +
                         "}");
                 emitter.onSuccess(result.getJSONArray("areas").toString());
+                //emitter.onError(new ApiException());
             } catch (JSONException e) {
                 emitter.onError(e);
             }

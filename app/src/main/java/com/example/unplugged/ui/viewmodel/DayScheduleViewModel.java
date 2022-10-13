@@ -6,9 +6,10 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.PseudoEskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.UnpluggedDatabase;
+import com.example.unplugged.data.dto.DayScheduleDto;
+import com.example.unplugged.data.repository.ICallback;
 import com.example.unplugged.data.repository.ILoadSheddingRepository;
 import com.example.unplugged.data.repository.LoadSheddingRepository;
 import com.example.unplugged.ui.state.DaySchedule;
@@ -24,7 +25,6 @@ public class DayScheduleViewModel extends BaseViewModel {
         super(application);
         UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
         repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
-        initErrorFeed(repository.getErrorFeed());
     }
 
     public LiveData<DaySchedule> getDaySchedule(String areaId) {
@@ -37,7 +37,11 @@ public class DayScheduleViewModel extends BaseViewModel {
     }
 
     private void loadSchedule(String areaId, LocalDate date) {
-        repository.getDaySchedule(areaId, date).observeForever(dayScheduleDto -> {
+        repository.getDaySchedule(areaId, date, scheduleCallback(areaId, date), errorCallback());
+    }
+
+    private ICallback<DayScheduleDto> scheduleCallback(String areaId, LocalDate date) {
+        return dayScheduleDto -> {
             DaySchedule schedule = new DaySchedule();
             schedule.setSchedule(dayScheduleDto);
 
@@ -46,7 +50,7 @@ public class DayScheduleViewModel extends BaseViewModel {
             schedule.setNextDaySchedule(() -> loadSchedule(areaId, date.plusDays(1)));
             schedule.setPreviousDaySchedule(() -> loadSchedule(areaId, date.minusDays(1)));
             uiSchedule.setValue(schedule);
-        });
+        };
     }
 
 }

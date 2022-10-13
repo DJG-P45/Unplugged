@@ -30,11 +30,11 @@ public class EskomSePushNetworkApi implements LoadSheddingApi {
                 try {
                     emitter.onSuccess(response.getJSONObject("status").getJSONObject("eskom").toString());
                 } catch (JSONException e) {
-                    emitter.onError(new ApiException());
+                    emitter.tryOnError(new ApiException());
                 }
             };
 
-            Response.ErrorListener errorListener = error -> emitter.onError(new ApiNetworkException());
+            Response.ErrorListener errorListener = error -> emitter.tryOnError(new ApiNetworkException());
 
             final String URL = BASE_URL + "status";
             sendRequest(GET, URL, null, responseListener, errorListener);
@@ -44,8 +44,15 @@ public class EskomSePushNetworkApi implements LoadSheddingApi {
     @Override
     public Single<String> getAreaInfo(String id) {
         return Single.create(emitter -> {
-            Response.Listener<JSONObject> responseListener = response -> emitter.onSuccess(response.toString());
-            Response.ErrorListener errorListener = error -> emitter.onError(new ApiNetworkException());
+            Response.Listener<JSONObject> responseListener = response -> {
+                try {
+                    response.put("id",id);
+                } catch (JSONException e) {
+                    emitter.tryOnError(new ApiException());
+                }
+                emitter.onSuccess(response.toString());
+            };
+            Response.ErrorListener errorListener = error -> emitter.tryOnError(new ApiNetworkException());
 
             final String URL = BASE_URL + "area?id=" + id;
             sendRequest(GET, URL, null, responseListener, errorListener);
@@ -59,11 +66,11 @@ public class EskomSePushNetworkApi implements LoadSheddingApi {
                 try {
                     emitter.onSuccess(response.getJSONArray("areas").toString());
                 } catch (JSONException e) {
-                    emitter.onError(new ApiException());
+                    emitter.tryOnError(new ApiException());
                 }
             };
 
-            Response.ErrorListener errorListener = error -> emitter.onError(new ApiNetworkException());
+            Response.ErrorListener errorListener = error -> emitter.tryOnError(new ApiNetworkException());
 
             final String URL = BASE_URL + "areas_search?text=" + searchText;
             sendRequest(GET, URL, null, responseListener, errorListener);

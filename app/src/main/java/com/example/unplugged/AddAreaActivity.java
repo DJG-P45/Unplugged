@@ -51,6 +51,7 @@ public class AddAreaActivity extends AppCompatActivity {
         // Display any possible error that might arise from the data layer
         addAreaViewModel.getUiErrorFeed().observe(this, msg -> {
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            progressBarContainer.setVisibility(View.INVISIBLE);
         });
 
         // When areas are found give them to the recycler view adapter

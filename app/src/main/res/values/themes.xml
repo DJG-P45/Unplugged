@@ -8,8 +8,8 @@
         <item name="android:textColor">@color/dark_gray</item>
         <item name="scrimBackground">@color/blue</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" >?attr/scrimBackground</item>
-        <item name="android:windowLightStatusBar" >true</item>
+        <item name="android:statusBarColor" >#000000</item>
+        <item name="android:windowLightStatusBar" >false</item>
         <!-- Customize your theme here. -->
     </style>
 </resources>

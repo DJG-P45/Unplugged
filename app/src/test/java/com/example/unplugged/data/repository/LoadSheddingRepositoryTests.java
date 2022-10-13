@@ -3,28 +3,15 @@ package com.example.unplugged.data.repository;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.example.unplugged.data.datasource.LoadSheddingApi;
 import com.example.unplugged.data.datasource.ObservedAreaDao;
-import com.example.unplugged.data.dto.AreaDto;
-import com.example.unplugged.data.dto.DayDto;
-import com.example.unplugged.data.dto.DayScheduleDto;
-import com.example.unplugged.data.dto.EventDto;
-import com.example.unplugged.data.dto.FoundAreaDto;
-import com.example.unplugged.data.dto.InfoDto;
-import com.example.unplugged.data.dto.OutageDto;
-import com.example.unplugged.data.dto.ScheduleDto;
-import com.example.unplugged.data.dto.StageDto;
-import com.example.unplugged.data.dto.StatusDto;
 import com.example.unplugged.data.entity.ObservedAreaEntity;
 import com.example.unplugged.data.other.ScheduleProviderFactory;
 import com.example.unplugged.data.other.TestSchedulerProvider;
@@ -43,7 +30,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +64,7 @@ public class LoadSheddingRepositoryTests {
     }
 
     @Test
-    public void getStatus_whenCorrectJsonResponse_StatusLiveDataUpdates() {
+    public void getStatus_whenCorrectJsonResponse_StatusSuccessCallback() {
         // Given
         final String response = "{\"name\":\"National\",\"next_stages\":[{\"stage\":\"2\",\"stage_start_timestamp\":\"2022-08-08T16:00:00+02:00\"},{\"stage\":\"0\",\"stage_start_timestamp\":\"2022-08-09T00:00:00+02:00\"}],\"stage\":\"1\",\"stage_updated\":\"2022-08-08T16:12:53.725852+02:00\"}";
 
@@ -86,27 +72,20 @@ public class LoadSheddingRepositoryTests {
         when(loadSheddingApi.getStatus()).thenReturn(Single.just(response));
 
         // Then
-        LiveData<StatusDto> status = repository.getStatus();
-
-        status.observeForever(statusDto -> {
-            assertEquals(statusDto.getStage(), 1);
-        });
-
+        repository.getStatus(value -> assertEquals(value.getStage(), 1), value -> {});
     }
 
     @Test
-    public void getStatus_whenIncorrectJsonResponse_StatusLiveDataNoUpdates() {
+    public void getStatus_whenIncorrectJsonResponse_StatusErrorCallback() {
         // When
         when(loadSheddingApi.getStatus()).thenReturn(Single.just(""));
 
         // Then
-        LiveData<StatusDto> status = repository.getStatus();
-
-        status.observeForever(statusDto -> fail());
+        repository.getStatus(value -> fail(), value -> fail());
     }
 
     @Test
-    public void findAreas_whenCorrectJsonResponse_StatusLiveDataUpdates() {
+    public void findAreas_whenCorrectJsonResponse_FoundAreasSuccessCallback() {
         // Given
         final String response = "[ { \"id\": \"westerncape-2-stellenboschmunicipality\", \"name\": \"Stellenbosch Municipality (2)\", \"region\": \"Western Cape\" }, { \"id\": \"westerncape-8-stellenboschfarmers\", \"name\": \"Stellenbosch farmers (8)\", \"region\": \"Western Cape\" }, { \"id\": \"eskomdirect-5215-stellenboschpart1outlyingstellenboschwesterncape\", \"name\": \"Stellenbosch Part 1 Outlying\", \"region\": \"Eskom Direct (Web), Stellenbosch, Western Cape\" }]";
 
@@ -114,55 +93,20 @@ public class LoadSheddingRepositoryTests {
         when(loadSheddingApi.findAreas(anyString())).thenReturn(Single.just(response));
 
         // Then
-        LiveData<List<FoundAreaDto>> foundAreas = repository.findAreas("text");
-
-        foundAreas.observeForever(foundAreaDtos -> {
-            assertEquals(foundAreaDtos.size(), 3);
-        });
+        repository.findAreas("text", value -> assertEquals(value.size(), 3), value -> {});
     }
 
     @Test
-    public void findAreas_whenIncorrectJsonResponse_FoundAreasLiveDataNoUpdates() {
+    public void findAreas_whenIncorrectJsonResponse_FoundAreasErrorCallback() {
         // When
         when(loadSheddingApi.findAreas(anyString())).thenReturn(Single.just(""));
 
         // Then
-        LiveData<List<FoundAreaDto>> foundAreas = repository.findAreas("text");
-
-        foundAreas.observeForever(statusDto -> fail());
+        repository.findAreas("text", value -> fail(), value -> fail());
     }
 
     @Test
-    public void getAreaInfo_whenCorrectJsonResponse_AreaInfoLiveDataUpdates() {
-        // Given
-        final String response = "{\"events\": [{\"end\":\"2022-08-08T22:30:00+02:00\",\"note\":\"Stage 2\",\"start\":\"2022-08-08T20:00:00+02:00\"}],\"info\": {\"name\": \"Sandton-WEST (4)\",\"region\": \"Eskom Direct, City of Johannesburg, Gauteng\"},\"schedule\": {\"days\":[{\"date\":\"2022-08-08\",\"name\": \"Monday\",\"stages\": [[],[\"20:00-22:30\"],[\"12:00-14:30\",\"20:00-22:30\"],[\"04:00-06:30\",\"12:00-14:30\",\"20:00-22:30\"],[\"04:00-06:30\",\"12:00-14:30\",\"20:00-22:30\"],[\"04:00-06:30\",\"12:00-14:30\",\"20:00-00:30\"],[\"04:00-06:30\",\"12:00-16:30\",\"20:00-00:30\"],[\"04:00-08:30\",\"12:00-16:30\",\"20:00-00:30\"]]}],\"source\":\"https://loadshedding.eskom.co.za/\"}}";
-
-        // When
-        when(loadSheddingApi.getAreaInfo(anyString())).thenReturn(Single.just(response));
-
-        // Then
-        LiveData<AreaDto> area = repository.getArea("text");
-
-        area.observeForever(areaDto -> {
-            assertEquals(areaDto.getId(), "text");
-            assertEquals(areaDto.getEvents().size(), 1);
-            assertEquals(areaDto.getSchedule().getDays().size(), 1);
-        });
-    }
-
-    @Test
-    public void getAreaInfo_whenIncorrectJsonResponse_AreaInfoNoLiveDataUpdates() {
-        // When
-        when(loadSheddingApi.getAreaInfo(anyString())).thenReturn(Single.just(""));
-
-        // Then
-        LiveData<AreaDto> area = repository.getArea("text");
-
-        area.observeForever(statusDto -> fail());
-    }
-
-    @Test
-    public void getObservedAreas_whenCorrectJsonResponse_ObservedAreasLiveDataUpdates() {
+    public void getObservedAreas_whenCorrectJsonResponse_ObservedAreasSuccessCallback() {
         // Given
         final ObservedAreaEntity observedAreaEntity = new ObservedAreaEntity("id-here");
         List<ObservedAreaEntity> observedAreaEntities = new ArrayList<>();
@@ -174,15 +118,11 @@ public class LoadSheddingRepositoryTests {
         when(loadSheddingApi.getAreaInfo(anyString())).thenReturn(Single.just(response));
 
         // Then
-        LiveData<List<AreaDto>> areas = repository.getObservedAreas();
-
-        areas.observeForever(areaDtoList -> {
-            assertEquals(areaDtoList.size(), 1);
-        });
+        repository.getObservedAreas(value -> assertEquals(value.getInfo().getName(), "Sandton-WEST (4)"), value -> fail());
     }
 
     @Test
-    public void getObservedAreas_whenNoObservedEntities_ObservedAreasNoLiveDataUpdates() {
+    public void getObservedAreas_whenNoObservedEntities_ObservedAreasErrorCallback() {
         // Given
         List<ObservedAreaEntity> observedAreaEntities = new ArrayList<>();
 
@@ -190,14 +130,11 @@ public class LoadSheddingRepositoryTests {
         when(observedAreaDao.getAllObservedAreas()).thenReturn(observedAreaEntities);
 
         // Then
-        LiveData<List<AreaDto>> areas = repository.getObservedAreas();
-
-        areas.observeForever(areaDtoList -> assertEquals(areaDtoList.size(), 0));
-        verify(loadSheddingApi, times(0)).getAreaInfo(anyString());
+        repository.getObservedAreas(value -> fail(), value -> fail());
     }
 
     @Test
-    public void getObservedAreas_whenIncorrectJsonResponse_ObservedAreasNoLiveDataUpdates() {
+    public void getObservedAreas_whenIncorrectJsonResponse_ObservedAreasErrorCallback() {
         // Given
         final ObservedAreaEntity observedAreaEntity = new ObservedAreaEntity("id-here");
         List<ObservedAreaEntity> observedAreaEntities = new ArrayList<>();
@@ -209,105 +146,57 @@ public class LoadSheddingRepositoryTests {
         when(loadSheddingApi.getAreaInfo(anyString())).thenReturn(Single.just(""));
 
         // Then
-        LiveData<List<AreaDto>> areas = repository.getObservedAreas();
-
-        areas.observeForever(areaDtoList -> assertEquals(areaDtoList.size(), 0));
+        repository.getObservedAreas(value -> fail(), value -> fail());
     }
 
     @Test
-    public void getDaySchedule_whenStatusAndAreaRetrieved_DayScheduleLiveDataUpdates() {
+    public void getDaySchedule_whenStatusAndAreaRetrieved_DayScheduleSuccessCallback() {
         // Given
         LoadSheddingRepository loadSheddingRepository = spy(repository);
-
-        final StatusDto statusDto = new StatusDto();
-        statusDto.setUpdated(ZonedDateTime.now());
-        statusDto.setStage(0);
-
-        final EventDto eventDto = new EventDto();
-        eventDto.setStart(ZonedDateTime.parse("2022-08-08T20:00:00+02:00"));
-        eventDto.setEnd(ZonedDateTime.parse("2022-08-08T22:30:00+02:00"));
-        eventDto.setNote("Stage 2");
-        List<EventDto> eventDtos = new ArrayList<>();
-        eventDtos.add(eventDto);
-
-        final InfoDto infoDto = new InfoDto();
-        infoDto.setName("Area");
-        infoDto.setRegion("Region");
-
-        final OutageDto outageDto = new OutageDto();
-        outageDto.setStart(LocalTime.parse("20:00"));
-        outageDto.setEnd(LocalTime.parse("22:30"));
-        List<OutageDto> outages = new ArrayList<>();
-        outages.add(outageDto);
-
-        final StageDto stageDto = new StageDto();
-        stageDto.setOutages(outages);
-        List<StageDto> stages = new ArrayList<>();
-        stages.add(stageDto);
-
-        final DayDto dayDto = new DayDto();
-        dayDto.setDate(LocalDate.now());
-        dayDto.setName("Stage 2");
-        dayDto.setStages(stages);
-        List<DayDto> days = new ArrayList<>();
-        days.add(dayDto);
-
-        final ScheduleDto scheduleDto = new ScheduleDto();
-        scheduleDto.setDays(days);
-
-        final AreaDto areaDto = new AreaDto();
-        areaDto.setId("id-here");
-        areaDto.setEvents(eventDtos);
-        areaDto.setInfo(infoDto);
-        areaDto.setSchedule(scheduleDto);
+        final String responseArea = "{\"events\": [{\"end\":\"2022-08-08T22:30:00+02:00\",\"note\":\"Stage 2\",\"start\":\"2022-08-08T20:00:00+02:00\"}],\"info\": {\"name\": \"Sandton-WEST (4)\",\"region\": \"Eskom Direct, City of Johannesburg, Gauteng\"},\"schedule\": {\"days\":[{\"date\":\"2022-08-08\",\"name\": \"Monday\",\"stages\": [[],[\"20:00-22:30\"],[\"12:00-14:30\",\"20:00-22:30\"],[\"04:00-06:30\",\"12:00-14:30\",\"20:00-22:30\"],[\"04:00-06:30\",\"12:00-14:30\",\"20:00-22:30\"],[\"04:00-06:30\",\"12:00-14:30\",\"20:00-00:30\"],[\"04:00-06:30\",\"12:00-16:30\",\"20:00-00:30\"],[\"04:00-08:30\",\"12:00-16:30\",\"20:00-00:30\"]]}],\"source\":\"https://loadshedding.eskom.co.za/\"}}";
+        final String responseStatus = "{\"name\":\"National\",\"next_stages\":[{\"stage\":\"2\",\"stage_start_timestamp\":\"2022-08-08T16:00:00+02:00\"},{\"stage\":\"0\",\"stage_start_timestamp\":\"2022-08-09T00:00:00+02:00\"}],\"stage\":\"1\",\"stage_updated\":\"2022-08-08T16:12:53.725852+02:00\"}";
 
         // When
-        doReturn(new MutableLiveData<>(statusDto)).when(loadSheddingRepository).getStatus();
-        doReturn(new MutableLiveData<>(areaDto)).when(loadSheddingRepository).getArea(anyString());
+        when(loadSheddingApi.getAreaInfo(anyString())).thenReturn(Single.just(responseArea));
+        when(loadSheddingApi.getStatus()).thenReturn(Single.just(responseStatus));
 
         // Then
-        LiveData<DayScheduleDto> daySchedule = loadSheddingRepository.getDaySchedule("id-here", LocalDate.now());
-
-        daySchedule.observeForever(dayScheduleDto -> {
-            assertEquals(dayScheduleDto.getOutages().size(), 1);
-            assertEquals(dayScheduleDto.getOutages().get(0).getStart(), LocalTime.parse("20:00"));
-            assertEquals(dayScheduleDto.getOutages().get(0).getEnd(), LocalTime.parse("22:30"));
-            assertEquals(dayScheduleDto.getAreaName(), "Area");
-            assertEquals(dayScheduleDto.getDowntime(), "Downtime: 2h 30m");
-        });
+        loadSheddingRepository.getDaySchedule("id-here", LocalDate.parse("2022-08-08"), value -> {
+            assertEquals(value.getOutages().size(), 1);
+            assertEquals(value.getOutages().get(0).getStart(), LocalTime.parse("20:00"));
+            assertEquals(value.getOutages().get(0).getEnd(), LocalTime.parse("22:30"));
+            assertEquals(value.getAreaName(), "Sandton-WEST (4)");
+            assertEquals(value.getDowntime(), "Downtime: 2h 30m");
+        }, value -> fail());
     }
 
     @Test
-    public void getDaySchedule_whenNoStatusRetrieved_DayScheduleNoLiveDataUpdates() {
+    public void getDaySchedule_whenNoStatusRetrieved_DayScheduleErrorCallback() {
         // Given
         LoadSheddingRepository loadSheddingRepository = spy(repository);
+        final String responseArea = "{\"events\": [{\"end\":\"2022-08-08T22:30:00+02:00\",\"note\":\"Stage 2\",\"start\":\"2022-08-08T20:00:00+02:00\"}],\"info\": {\"name\": \"Sandton-WEST (4)\",\"region\": \"Eskom Direct, City of Johannesburg, Gauteng\"},\"schedule\": {\"days\":[{\"date\":\"2022-08-08\",\"name\": \"Monday\",\"stages\": [[],[\"20:00-22:30\"],[\"12:00-14:30\",\"20:00-22:30\"],[\"04:00-06:30\",\"12:00-14:30\",\"20:00-22:30\"],[\"04:00-06:30\",\"12:00-14:30\",\"20:00-22:30\"],[\"04:00-06:30\",\"12:00-14:30\",\"20:00-00:30\"],[\"04:00-06:30\",\"12:00-16:30\",\"20:00-00:30\"],[\"04:00-08:30\",\"12:00-16:30\",\"20:00-00:30\"]]}],\"source\":\"https://loadshedding.eskom.co.za/\"}}";
 
         // When
-        doReturn(new MutableLiveData<>()).when(loadSheddingRepository).getStatus();
+        when(loadSheddingApi.getAreaInfo(anyString())).thenReturn(Single.just(responseArea));
+        when(loadSheddingApi.getStatus()).thenReturn(Single.error(new Exception()));
 
         // Then
-        LiveData<DayScheduleDto> daySchedule = loadSheddingRepository.getDaySchedule("id-here", LocalDate.now());
-
-        daySchedule.observeForever(dayScheduleDto -> fail());
-        verify(loadSheddingRepository, times(0)).getArea(anyString());
+        loadSheddingRepository.getDaySchedule("id-here", LocalDate.parse("2022-08-08"), value -> fail(), value -> fail());
+        verify(loadSheddingApi, times(1)).getAreaInfo(anyString());
     }
 
     @Test
-    public void getDaySchedule_whenNoAreaRetrieved_DayScheduleNoLiveDataUpdates() {
+    public void getDaySchedule_whenNoAreaRetrieved_DayScheduleErrorCallback() {
         // Given
         LoadSheddingRepository loadSheddingRepository = spy(repository);
-
-        final StatusDto statusDto = new StatusDto();
-        statusDto.setUpdated(ZonedDateTime.now());
-        statusDto.setStage(0);
+        final String responseStatus = "{\"name\":\"National\",\"next_stages\":[{\"stage\":\"2\",\"stage_start_timestamp\":\"2022-08-08T16:00:00+02:00\"},{\"stage\":\"0\",\"stage_start_timestamp\":\"2022-08-09T00:00:00+02:00\"}],\"stage\":\"1\",\"stage_updated\":\"2022-08-08T16:12:53.725852+02:00\"}";
 
         // When
-        doReturn(new MutableLiveData<>(statusDto)).when(loadSheddingRepository).getStatus();
-        doReturn(new MutableLiveData<>()).when(loadSheddingRepository).getArea(anyString());
+        when(loadSheddingApi.getAreaInfo(anyString())).thenReturn(Single.error(new Exception()));
+        when(loadSheddingApi.getStatus()).thenReturn(Single.just(responseStatus));
 
         // Then
-        LiveData<DayScheduleDto> daySchedule = loadSheddingRepository.getDaySchedule("id-here", LocalDate.now());
-
-        daySchedule.observeForever(dayScheduleDto -> fail());
+        loadSheddingRepository.getDaySchedule("id-here", LocalDate.parse("2022-08-08"), value -> fail(), value -> fail());
+        verify(loadSheddingApi, times(1)).getStatus();
     }
 }
