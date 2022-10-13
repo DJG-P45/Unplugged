@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.unplugged.BuildConfig;
 import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.PseudoEskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.UnpluggedDatabase;
@@ -29,7 +30,7 @@ public class AddAreaViewModel extends BaseViewModel {
         UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
         uiFoundAreas = new MutableLiveData<>();
         uiAreaAdded = new MutableLiveData<>();
-        repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
+        repository = new LoadSheddingRepository(new EskomSePushNetworkApi(application, BuildConfig.ESKOM_SE_PUSH_KEY), db.observedAreaDao());
     }
 
     public LiveData<Boolean> isAreaAdded() {

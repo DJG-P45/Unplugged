@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.unplugged.BuildConfig;
+import com.example.unplugged.data.datasource.EskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.PseudoEskomSePushNetworkApi;
 import com.example.unplugged.data.datasource.UnpluggedDatabase;
 import com.example.unplugged.data.dto.DayScheduleDto;
@@ -24,7 +26,7 @@ public class DayScheduleViewModel extends BaseViewModel {
     public DayScheduleViewModel(@NonNull Application application) {
         super(application);
         UnpluggedDatabase db = UnpluggedDatabase.getDatabase(application);
-        repository = new LoadSheddingRepository(new PseudoEskomSePushNetworkApi(), db.observedAreaDao());
+        repository = new LoadSheddingRepository(new EskomSePushNetworkApi(application, BuildConfig.ESKOM_SE_PUSH_KEY), db.observedAreaDao());
     }
 
     public LiveData<DaySchedule> getDaySchedule(String areaId) {
