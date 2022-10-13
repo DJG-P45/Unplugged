@@ -47,11 +47,11 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "                }\n" +
                         "            ],\n" +
                         "            \"stage\": \"1\",\n" +
-                        "            \"stage_updated\": \"2022-08-08T16:12:53.725852+02:00\"\n" +
+                        "            \"stage_updated\": \"2022-10-12T06:12:53.725852+02:00\"\n" +
                         "        }\n" +
                         "    }\n" +
                         "}");
-                if (count > 1) {
+                if (count > 10) {
                     emitter.onError(new ApiException());
                 } else {
                     emitter.onSuccess(result.getJSONObject("status").getJSONObject("eskom").toString());
@@ -66,19 +66,26 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
     public synchronized Single<String> getAreaInfo(String id) {
         return Single.create(emitter -> {
             Thread.sleep(2000);
+            String name = "Sandton-WEST (4)";
+            String region = "Eskom Direct, City of Johannesburg, Gauteng";
+            if (count >= 1) {
+                name = "Stellenbosch Municipality (2)";
+                region = "Western Cape";
+            }
+            count++;
             try {
                 System.out.println("===> API <=== ");
                 JSONObject result = new JSONObject("{\n" +
                         "    \"events\": [\n" +
                         "        {\n" +
                         "            \"end\": \"2022-08-08T22:30:00+02:00\",\n" +
-                        "            \"note\": \"Stage 2\",\n" +
+                        "            \"note\": \"Stage 1\",\n" +
                         "            \"start\": \"2022-08-08T20:00:00+02:00\"\n" +
                         "        }\n" +
                         "    ],\n" +
                         "    \"info\": {\n" +
-                        "        \"name\": \"Sandton-WEST (4)\",\n" +
-                        "        \"region\": \"Eskom Direct, City of Johannesburg, Gauteng\"\n" +
+                        "        \"name\": \""+name+"\",\n" +
+                        "        \"region\": \""+region+"\"\n" +
                         "    },\n" +
                         "    \"schedule\": {\n" +
                         "        \"days\": [\n" +
@@ -291,7 +298,8 @@ public class PseudoEskomSePushNetworkApi implements LoadSheddingApi{
                         "    }\n" +
                         "}");
 
-                if (count > 1) {
+                result.put("id",id);
+                if (count > 10) {
                     emitter.onError(new ApiException());
                 } else {
                     emitter.onSuccess(result.toString());
