@@ -19,7 +19,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="150sp"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
                 app:layout_collapseMode="parallax">
@@ -32,6 +32,13 @@
                     android:textColor="@color/dark_gray"
                     android:textSize="40sp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtDashboardSubtitlte"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/national"
+                    android:textColor="@color/dark_gray" />
 
                 <TextView
                     android:id="@+id/txtDashboardSubtitle"
