@@ -25,7 +25,7 @@ You will require latest Android Studio to build and run an Android application.
 3. Create a file named "apikey.properties" in the project root folder.
 4. In the newly created properties file add ```ESKOM_SE_PUSH_KEY="<key-here>"```
 5. Where it says "key-here" provide your own EskomSePush API key.
-6. Build and run the project.
+6. Build and run the project on Android Emulator or Physical android device.
 
 ## App Usage
 Below are some brief details explaining how to use the app.
