@@ -1,5 +1,7 @@
 # Unplugged Documentation
-Unplugged is a mobile application that displays South Africa loadshedding schedules for areas selected by the user. The load shedding schedule for a particular area on a particular day is presented in a vertical 24 hour day timeline format (See 2nd screenshot). The total load shedding (downtime) for a particular day is calculated and displayed alongside the schedule. A user can add and remove areas for which they wish to receive load shedding schedules.
+Unplugged is an Android mobile application that displays South Africa loadshedding schedules for areas selected by the user. The load shedding schedule for a particular area on a particular day is presented in a vertical 24 hour day timeline format (See 2nd screenshot). The total load shedding (downtime) for a particular day is calculated and displayed alongside the schedule. A user can add and remove areas for which they wish to receive loadshedding schedules. The loadshedding schedules are provided by the [EskomSePush](https://sepush.co.za) backend API.
+
+This mobile application aims to provide essential loadshedding information with a user experience where the user is not overwhelmed with options and information. It keeps things simple.
 
 ## Screenshots
 <img src="https://github.com/Dale-Gathercole-P45/Unplugged/blob/1f3d43634ab4daa19dfb592cf012b8ed03da6753/screenshots/Dashboard_Screen.png" width="200"/> |
