@@ -22,9 +22,9 @@ You will require latest Android Studio to build and run an Android application.
 
 1. Clone the Unplugged Android project to your local machine.
 2. Import the local project into your Android Studio IDE.
-3. Create the file named "apikey.properties" in the project root folder.
+3. Create a file named "apikey.properties" in the project root folder.
 4. In the newly created properties file add ```ESKOM_SE_PUSH_KEY="<key-here>"```
-5. Where it says "<key-here>" provide your own EskomSePush API key.
+5. Where it says "key-here" provide your own EskomSePush API key.
 6. Build and run the project.
 
 ## App Usage
